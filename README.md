@@ -1,4 +1,4 @@
-# fogsim
+# fogsim - task scheduling
 A Toolkit for Modeling and Simulation of Resource Management Techniques in Internet of Things, Edge and Fog Computing Environments
 
 ## IMPORTANT
@@ -6,18 +6,8 @@ Please check the `improv` branch for latest changes. Master branch has been left
 
 ## How to run iFogSim ?
 
-* Create a Java project in Eclipse. 
-* Inside the project directory, initialize an empty Git repository with the following command
+* Clone project về workspace trên máy mình
 ```
-git init
+git clone https://github.com/TonnyTran/01_fog.git
 ```
-* Add the Git repository of iFogSim as the `origin` remote.
-```
-git remote add origin https://github.com/harshitgupta1337/fogsim
-```
-* Pull the contents of the repository to your machine.
-```
-git pull origin master
-```
-* Include the JARs (except the CloudSim ones) to your Eclipse project.  
-* Run the example files (e.g. VRGame.java) to get started. 
+* Trong eclipse, chọn File/new/java project --> tạo project tên  là 01_fog
