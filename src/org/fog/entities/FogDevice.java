@@ -39,6 +39,8 @@ import org.fog.utils.NetworkUsageMonitor;
 import org.fog.utils.TimeKeeper;
 
 public class FogDevice extends PowerDatacenter {
+	protected List<Cloudlet> cloudletListAssignment;
+	
 	protected Queue<Tuple> northTupleQueue;
 	protected Queue<Pair<Tuple, Integer>> southTupleQueue;
 	
@@ -133,6 +135,8 @@ public class FogDevice extends PowerDatacenter {
 		setNorthLinkBusy(false);
 		setSouthLinkBusy(false);
 		
+//extend
+		setCloudletListAssignment(new ArrayList<Cloudlet>());
 		
 		setChildrenIds(new ArrayList<Integer>());
 		setChildToOperatorsMap(new HashMap<Integer, List<String>>());
@@ -217,6 +221,8 @@ public class FogDevice extends PowerDatacenter {
 		setNorthLinkBusy(false);
 		setSouthLinkBusy(false);
 		
+//extend
+		setCloudletListAssignment(new ArrayList<Cloudlet>());
 		
 		setChildrenIds(new ArrayList<Integer>());
 		setChildToOperatorsMap(new HashMap<Integer, List<String>>());
@@ -983,5 +989,13 @@ public class FogDevice extends PowerDatacenter {
 	public void setModuleInstanceCount(
 			Map<String, Map<String, Integer>> moduleInstanceCount) {
 		this.moduleInstanceCount = moduleInstanceCount;
+	}
+
+	public List<Cloudlet> getCloudletListAssignment() {
+		return cloudletListAssignment;
+	}
+
+	public void setCloudletListAssignment(List<Cloudlet> cloudletListAssignment) {
+		this.cloudletListAssignment = cloudletListAssignment;
 	}
 }

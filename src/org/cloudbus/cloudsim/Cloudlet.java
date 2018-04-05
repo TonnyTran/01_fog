@@ -45,6 +45,9 @@ public class Cloudlet {
 	/** The output file size of this Cloudlet after execution (unit: in byte). */
 	private final long cloudletOutputSize;
 
+	/** The amount of Ram required for execution */
+	private long cloudletMemRequired;
+	
 	/** The num of Pe required to execute this job. */
 	private int numberOfPes;
 
@@ -189,6 +192,34 @@ public class Cloudlet {
 				utilizationModelRam,
 				utilizationModelBw,
 				false);
+		vmId = -1;
+		accumulatedBwCost = 0.0;
+		costPerBw = 0.0;
+
+		requiredFiles = new LinkedList<String>();
+	}
+	
+	public Cloudlet(
+			final int cloudletId,
+			final long cloudletLength,
+			final int pesNumber,
+			final long cloudletFileSize,
+			final long cloudletOutputSize,
+			final long cloudletMemRequired,
+			final UtilizationModel utilizationModelCpu,
+			final UtilizationModel utilizationModelRam,
+			final UtilizationModel utilizationModelBw) {
+		this(
+				cloudletId,
+				cloudletLength,
+				pesNumber,
+				cloudletFileSize,
+				cloudletOutputSize,
+				utilizationModelCpu,
+				utilizationModelRam,
+				utilizationModelBw,
+				false);
+		this.cloudletMemRequired = cloudletMemRequired;
 		vmId = -1;
 		accumulatedBwCost = 0.0;
 		costPerBw = 0.0;
@@ -1461,6 +1492,10 @@ public class Cloudlet {
 	 */
 	public double getUtilizationOfBw(final double time) {
 		return getUtilizationModelBw().getUtilization(time);
+	}
+
+	public long getMemRequired() {
+		return cloudletMemRequired;
 	}
 
 }

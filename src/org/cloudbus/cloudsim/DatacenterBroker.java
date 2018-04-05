@@ -451,7 +451,7 @@ public class DatacenterBroker extends SimEntity {
 	 * @param <T> the generic type
 	 * @param cloudletList the new cloudlet list
 	 */
-	protected <T extends Cloudlet> void setCloudletList(List<T> cloudletList) {
+	public <T extends Cloudlet> void setCloudletList(List<T> cloudletList) {
 		this.cloudletList = cloudletList;
 	}
 

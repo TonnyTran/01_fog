@@ -74,6 +74,10 @@ public abstract class SimEntity implements Cloneable {
 	public int getId() {
 		return id;
 	}
+	
+//	public void setId(int id) {
+//		this.id = id;
+//	}
 
 	// The schedule functions
 

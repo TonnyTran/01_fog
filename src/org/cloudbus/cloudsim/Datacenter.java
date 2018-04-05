@@ -1054,7 +1054,7 @@ public class Datacenter extends SimEntity {
 	 * 
 	 * @return the characteristics
 	 */
-	protected DatacenterCharacteristics getCharacteristics() {
+	public DatacenterCharacteristics getCharacteristics() {
 		return characteristics;
 	}
 
@@ -1063,7 +1063,7 @@ public class Datacenter extends SimEntity {
 	 * 
 	 * @param characteristics the new characteristics
 	 */
-	protected void setCharacteristics(DatacenterCharacteristics characteristics) {
+	public void setCharacteristics(DatacenterCharacteristics characteristics) {
 		this.characteristics = characteristics;
 	}
 

@@ -1,0 +1,3 @@
+{"nodes":[{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog01","type":"FOG_DEVICE","mips":500,"ram":5000,"downBw":10000,"costPerSec":0.2,"costPerMem":0.015,"costPerBw":0.01},
+{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog02","type":"FOG_DEVICE","mips":800,"ram":5000,"downBw":10000,"costPerSec":0.22,"costPerMem":0.02,"costPerBw":0.019},
+{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud07","type":"FOG_DEVICE","mips":3000,"ram":5000,"downBw":10000,"costPerSec":2.3,"costPerMem":0.75,"costPerBw":0.09},{"level":1,"upBw":10000,"ratePerMips":0.0,"name":"SmartGateway","type":"FOG_DEVICE","mips":2800,"ram":4000,"downBw":10000,"costPerSec":2.3,"costPerMem":0.75,"costPerBw":0.09},],"links":[]}
