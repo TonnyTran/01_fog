@@ -74,7 +74,7 @@ public class FogSchedulingExample {
 			
 			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
 			broker.assignCloudlet(SchedulingAlgorithm.TABU_SEARCH);
-
+			// comments
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.printLine("Unwanted errors happen");
