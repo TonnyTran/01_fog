@@ -291,6 +291,7 @@ public class GeneticAlgorithm {
 	 *            The population to apply crossover to
 	 * @return The new population
 	 */
+	
 	public Population crossoverPopulation(Population population, List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 		// Create new population
 		List<Individual> newPopulation = new ArrayList<Individual>();
@@ -300,7 +301,7 @@ public class GeneticAlgorithm {
 		for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) {
 			Individual parent1 = population.getFittest(populationIndex);
 
-			// Apply crossover to this individual?
+			// Apply crossover to this individual
 			if (this.crossoverRate > Math.random() && populationIndex >= this.elitismCount) {
 				// Initialize offspring
 				Individual offspring = new Individual(parent1.getChromosomeLength());
@@ -403,29 +404,45 @@ public class GeneticAlgorithm {
 				//listChange contains which gen change makes the individual better
 				List<Pair> listChange = new ArrayList<Pair>();
 				
+				int randomCloudletId = Service.rand(0, individual.getChromosomeLength() - 1);
+				int randomfogId = Service.rand(0, individual.getMaxValue());
 				
-				for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
-					for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {					
-						
-						for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
-							newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
-						}
-						
-						// change a gene of individual to form newIndividual
-						newIndividual.setGene(cloudletId, fogId);
-						double newFitness = calcFitness(newIndividual, fogDevices, cloudletList); 
-						//if newIndividual is better then individual, store change in listChange
-						if(newFitness > individual.getFitness()) {
-							listChange.add(new Pair(cloudletId, fogId));
-						}
-					}
-				}
 				
-				// if exist any gene make individual better, select randomly a gene change to have newIndividual
-				if(!listChange.isEmpty()) {
-					int change = Service.rand(0, listChange.size() - 1);
-					individual.setGene(listChange.get(change).getCloudletId(), listChange.get(change).getFogId());
+				for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
+					newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
 				}
+				newIndividual.setGene(randomCloudletId, randomfogId);
+				if (calcFitness(newIndividual, fogDevices, cloudletList) >= calcFitness(individual, fogDevices, cloudletList))
+					individual.setGene(randomCloudletId, randomfogId);
+				
+				
+				
+//				Individual individual = population.getFittest(populationIndex);
+//				Individual newIndividual = new Individual(individual.getChromosomeLength());
+//				//listChange contains which gen change makes the individual better
+//				List<Pair> listChange = new ArrayList<Pair>();
+//				for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
+//					for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {					
+//						
+//						for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
+//							newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+//						}
+//						
+//						// change a gene of individual to form newIndividual
+//						newIndividual.setGene(cloudletId, fogId);
+//						double newFitness = calcFitness(newIndividual, fogDevices, cloudletList); 
+//						//if newIndividual is better then individual, store change in listChange
+//						if(newFitness > individual.getFitness()) {
+//							listChange.add(new Pair(cloudletId, fogId));
+//						}
+//					}
+//				}
+//				
+//				// if exist any gene make individual better, select randomly a gene change to have newIndividual
+//				if(!listChange.isEmpty()) {
+//					int change = Service.rand(0, listChange.size() - 1);
+//					individual.setGene(listChange.get(change).getCloudletId(), listChange.get(change).getFogId());
+//				}
 			}
 		}
 		// Return mutated population
