@@ -173,8 +173,8 @@ public class SchedulingAlgorithm {
 					population = bee.mutatePopulation(population, fogDevices, cloudletList);
 					bee.evalPopulation(population, fogDevices, cloudletList);
 					
-					//population=bee.searchFood(population, fogDevices, cloudletList);
-					//population=bee.evalPopulation(population, fogDevices, cloudletList);
+					population=bee.searchFood(population, fogDevices, cloudletList);
+					population=bee.evalPopulation(population, fogDevices, cloudletList);
 					
 					population.getFittest(0).printGene();
 					
