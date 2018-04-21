@@ -212,7 +212,7 @@ public class SchedulingAlgorithm {
 
                                         // Find food source using local search
 
-//                                        population = beeAlgorithm.findFoodSource(population, fogDevices, cloudletList);
+                                        population = beeAlgorithm.findFoodSource(population, fogDevices, cloudletList);
 
                                         // Evaluate population
                                         beeAlgorithm.evalPopulation(population, fogDevices, cloudletList);
