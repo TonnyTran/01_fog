@@ -15,7 +15,7 @@ public class CloudletCreation {
 
 	/** The cloudlet list. */
 	private static List<Cloudlet> cloudletList;
-	public static final int NUMBER_OF_CLOUDLETS = 20;
+	public static final int NUMBER_OF_CLOUDLETS = 500;
 	
 	// Delimiter used in CSV file
     private static final String COMMA_DELIMITER = ",";

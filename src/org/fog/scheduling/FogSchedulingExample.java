@@ -36,202 +36,206 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 public class FogSchedulingExample {
-	static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
-	static FogDevice smartGateway;
-	static List<Cloudlet> listCloudlet = new ArrayList<Cloudlet>();
+        static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
+        static FogDevice smartGateway;
+        static List<Cloudlet> listCloudlet = new ArrayList<Cloudlet>();
 
-	private static final String COMMA_DELIMITER = ",";
-//	private static boolean CLOUD = false;
-	public static String fileName = "data_infrucstructure/fog15";
-	public static String filename_cloudlet = "data/data100";
+        private static final String COMMA_DELIMITER = ",";
 
-	public static void main(String[] args) {
+        public static String fileName = "data_infrucstructure/fog15";
+        public static int number_cloudlet = 200;
+        public static String algorithm = SchedulingAlgorithm.BEE;
+        public static String filename_cloudlet = "data/data" + number_cloudlet;
+        public static String filename_ouput = "results_ex/" + algorithm + "_" + number_cloudlet;
 
-		Log.printLine("Starting scheduling simulation...");
+        public static void main(String[] args) {
 
-		try {
-			Log.disable();
-			int num_user = 1; // number of cloud users
-			Calendar calendar = Calendar.getInstance();
-			boolean trace_flag = false; // mean trace events
+                Log.printLine("Starting scheduling simulation...");
 
-			CloudSim.init(num_user, calendar, trace_flag);
+                try {
+                        Log.disable();
+                        int num_user = 1; // number of cloud users
+                        Calendar calendar = Calendar.getInstance();
+                        boolean trace_flag = false; // mean trace events
 
-			String appId = "scheduler"; // identifier of the application 2413793103448276
+                        CloudSim.init(num_user, calendar, trace_flag);
 
-			FogBroker broker = new FogBroker("broker");
+                        String appId = "scheduler"; // identifier of the application 2413793103448276
 
-			Application application = createApplication(appId, broker.getId());
-			application.setUserId(broker.getId());
+                        FogBroker broker = new FogBroker("broker");
 
-			// initiate the fog-cloud devices list from json file
-			fogDevices = createFogDevices(broker.getId(), appId);
-			broker.setFogDevices(fogDevices);
+                        Application application = createApplication(appId, broker.getId());
+                        application.setUserId(broker.getId());
 
-			// initiate the cloudlet list - bag of tasks from file
-			listCloudlet = createCloudlet(filename_cloudlet);
-			broker.setCloudletList(listCloudlet);
-			
-			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
-			broker.assignCloudlet(SchedulingAlgorithm.TABU_SEARCH);
+                        // initiate the fog-cloud devices list from json file
+                        fogDevices = createFogDevices(broker.getId(), appId);
+                        broker.setFogDevices(fogDevices);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.printLine("Unwanted errors happen");
-		}
-	}
+                        // initiate the cloudlet list - bag of tasks from file
+                        listCloudlet = createCloudlet(filename_cloudlet);
+                        broker.setCloudletList(listCloudlet);
 
-	/**
-	 * Creates the fog devices in the physical topology of the simulation.
-	 * 
-	 * @param userId
-	 * @param appId
-	 */
-	private static List<FogDevice> createFogDevices(int userId, String appId) {
-		return jsonToInfrucstruture(fileName);
-	}
+                        // set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
+                        broker.assignCloudlet(algorithm);
+//                      broker.assignCloudletloop(algorithm, filename_ouput);
 
-	// read file to convert JSON object to Fog device object
-	public static List<FogDevice> jsonToInfrucstruture(String fileName) {
+                } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.printLine("Unwanted errors happen");
+                }
+        }
 
-		List<FogDevice> fogDevices = new ArrayList<FogDevice>();
+        /**
+         * Creates the fog devices in the physical topology of the simulation.
+         *
+         * @param userId
+         * @param appId
+         */
+        private static List<FogDevice> createFogDevices(int userId, String appId) {
+                return jsonToInfrucstruture(fileName);
+        }
 
-		try {
-			JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(fileName));
-			JSONArray nodes = (JSONArray) doc.get("nodes");
-			@SuppressWarnings("unchecked")
-			Iterator<JSONObject> iter = nodes.iterator();
-			while (iter.hasNext()) {
-				JSONObject node = iter.next();
-				String nodeType = (String) node.get("type");
-				String nodeName = (String) node.get("name");
+        // read file to convert JSON object to Fog device object
+        public static List<FogDevice> jsonToInfrucstruture(String fileName) {
 
-				if (nodeType.equals("FOG_DEVICE")) {
-					long mips = (Long) node.get("mips");
-					int ram = new BigDecimal((Long) node.get("ram")).intValueExact();
-					long upBw = new BigDecimal((Long) node.get("upBw")).intValueExact();
-					long downBw = new BigDecimal((Long) node.get("downBw")).intValueExact();
-					int level = new BigDecimal((Long) node.get("level")).intValue();
-					double rate = new BigDecimal((Double) node.get("ratePerMips")).doubleValue();
-					double costPerSec = (Double) node.get("costPerSec");
-					double costPerMem = new BigDecimal((Double) node.get("costPerMem")).doubleValue();
-					double costPerBw = new BigDecimal((Double) node.get("costPerBw")).doubleValue();
+                List<FogDevice> fogDevices = new ArrayList<FogDevice>();
 
-					FogDevice fogDevice = createFogDevice(nodeName, mips, ram, upBw, downBw, level, rate, costPerSec, costPerMem, costPerBw, 16 * 103,
-							16 * 83.25);
-					if (nodeName.equals("SmartGateway")) {
-						fogDevice.setParentId(-1);
-						smartGateway = fogDevice;
-					} else {
-						fogDevices.add(fogDevice);
-						
-					}
-				}
-			}
-			for (int i = 0; i < fogDevices.size(); i++) {
-				fogDevices.get(i).setParentId(smartGateway.getId());
-				System.out.println(i + ". MIPS: " + fogDevices.get(i).getHost().getTotalMips());
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+                try {
+                        JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(fileName));
+                        JSONArray nodes = (JSONArray) doc.get("nodes");
+                        @SuppressWarnings("unchecked")
+                        Iterator<JSONObject> iter = nodes.iterator();
+                        while (iter.hasNext()) {
+                                JSONObject node = iter.next();
+                                String nodeType = (String) node.get("type");
+                                String nodeName = (String) node.get("name");
 
-		System.out.println("############################");
-		System.out.println("Read data to Fog Infrucstructure successfully");
-		System.out.println("############################");
-		System.out.println(fogDevices.size());
-		return fogDevices;
-	}
-	
-	/**
-	 * Creates a vanilla fog device
-	 * 
-	 * @param nodeName
-	 *            name of the device to be used in simulation
-	 * @param mips
-	 *            MIPS
-	 * @param ram
-	 *            RAM
-	 * @param upBw
-	 *            uplink bandwidth
-	 * @param downBw
-	 *            downlink bandwidth
-	 * @param level
-	 *            hierarchy level of the device
-	 * @param ratePerMips
-	 *            cost rate per MIPS used
-	 * @param costPerSec
-	 * 			  the cost of using processing in this resource
-	 * @param costPerMem
-	 * 			  the cost of using memory in this resource
-	 * @param costPerBw
-	 * 			  the cost of using bw in this resource         
-	 * @param busyPower
-	 * @param idlePower
-	 * @return
-	 */
-	private static FogDevice createFogDevice(String nodeName, long mips, int ram, long upBw, long downBw, int level,
-			double ratePerMips,double costPerSec, double costPerMem, double costPerBw, double busyPower, double idlePower) {
+                                if (nodeType.equals("FOG_DEVICE")) {
+                                        long mips = (Long) node.get("mips");
+                                        int ram = new BigDecimal((Long) node.get("ram")).intValueExact();
+                                        long upBw = new BigDecimal((Long) node.get("upBw")).intValueExact();
+                                        long downBw = new BigDecimal((Long) node.get("downBw")).intValueExact();
+                                        int level = new BigDecimal((Long) node.get("level")).intValue();
+                                        double rate = new BigDecimal((Double) node.get("ratePerMips")).doubleValue();
+                                        double costPerSec = (Double) node.get("costPerSec");
+                                        double costPerMem = new BigDecimal((Double) node.get("costPerMem")).doubleValue();
+                                        double costPerBw = new BigDecimal((Double) node.get("costPerBw")).doubleValue();
 
-		List<Pe> peList = new ArrayList<Pe>();
+                                        FogDevice fogDevice = createFogDevice(nodeName, mips, ram, upBw, downBw, level, rate, costPerSec, costPerMem, costPerBw, 16 * 103,
+                                                        16 * 83.25);
+                                        if (nodeName.equals("SmartGateway")) {
+                                                fogDevice.setParentId(-1);
+                                                smartGateway = fogDevice;
+                                        } else {
+                                                fogDevices.add(fogDevice);
 
-		// 3. Create PEs and add these into a list.
-		peList.add(new Pe(0, new PeProvisionerOverbooking(mips))); // need to store Pe id and MIPS Rating
+                                        }
+                                }
+                        }
+                        for (int i = 0; i < fogDevices.size(); i++) {
+                                fogDevices.get(i).setParentId(smartGateway.getId());
+                                System.out.println(i + ". MIPS: " + fogDevices.get(i).getHost().getTotalMips());
+                        }
+                } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                }
 
-		int hostId = FogUtils.generateEntityId();
-		long storage = 1000000; // host storage
-		int bw = 10000;
+                System.out.println("############################");
+                System.out.println("Read data to Fog Infrucstructure successfully");
+                System.out.println("############################");
+                System.out.println(fogDevices.size());
+                return fogDevices;
+        }
 
-		PowerHost host = new PowerHost(hostId, new RamProvisionerSimple(ram), new BwProvisionerOverbooking(bw), storage,
-				peList, new StreamOperatorScheduler(peList), new FogLinearPowerModel(busyPower, idlePower));
+        /**
+         * Creates a vanilla fog device
+         *
+         * @param nodeName
+         *            name of the device to be used in simulation
+         * @param mips
+         *            MIPS
+         * @param ram
+         *            RAM
+         * @param upBw
+         *            uplink bandwidth
+         * @param downBw
+         *            downlink bandwidth
+         * @param level
+         *            hierarchy level of the device
+         * @param ratePerMips
+         *            cost rate per MIPS used
+         * @param costPerSec
+         *                        the cost of using processing in this resource
+         * @param costPerMem
+         *                        the cost of using memory in this resource
+         * @param costPerBw
+         *                        the cost of using bw in this resource
+         * @param busyPower
+         * @param idlePower
+         * @return
+         */
+        private static FogDevice createFogDevice(String nodeName, long mips, int ram, long upBw, long downBw, int level,
+                        double ratePerMips,double costPerSec, double costPerMem, double costPerBw, double busyPower, double idlePower) {
 
-		List<Host> hostList = new ArrayList<Host>();
-		hostList.add(host);
+                List<Pe> peList = new ArrayList<Pe>();
 
-		String arch = "x86"; // system architecture
-		String os = "Linux"; // operating system
-		String vmm = "Xen";
-		double time_zone = 10.0; // time zone this resource located
-		double costPerStorage = 0.001; // the cost of using storage in this resource
-		LinkedList<Storage> storageList = new LinkedList<Storage>(); // we are not adding SAN devices by now
+                // 3. Create PEs and add these into a list.
+                peList.add(new Pe(0, new PeProvisionerOverbooking(mips))); // need to store Pe id and MIPS Rating
 
-		FogDeviceCharacteristics characteristics = new FogDeviceCharacteristics(arch, os, vmm, host, time_zone, costPerSec,
-				costPerMem, costPerStorage, costPerBw);
+                int hostId = FogUtils.generateEntityId();
+                long storage = 1000000; // host storage
+                int bw = 10000;
 
-		FogDevice fogdevice = null;
-		try {
-			fogdevice = new FogDevice(nodeName, characteristics, new AppModuleAllocationPolicy(hostList), storageList,
-					10, upBw, downBw, 0, ratePerMips);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                PowerHost host = new PowerHost(hostId, new RamProvisionerSimple(ram), new BwProvisionerOverbooking(bw), storage,
+                                peList, new StreamOperatorScheduler(peList), new FogLinearPowerModel(busyPower, idlePower));
 
-		fogdevice.setLevel(level);
-		return fogdevice;
-	}
+                List<Host> hostList = new ArrayList<Host>();
+                hostList.add(host);
 
-	// initiate the task list (cloudlet list)
-	public static List<Cloudlet> createCloudlet(String filename) {
-		
-		 LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+                String arch = "x86"; // system architecture
+                String os = "Linux"; // operating system
+                String vmm = "Xen";
+                double time_zone = 10.0; // time zone this resource located
+                double costPerStorage = 0.001; // the cost of using storage in this resource
+                LinkedList<Storage> storageList = new LinkedList<Storage>(); // we are not adding SAN devices by now
 
-		// cloudlet parameters
-		 int cloudletId;
-		 long length;
-		 long fileSize;
-		 long outputSize;
-		 long memRequired;
-		 int pesNumber = 1;
-		 UtilizationModel utilizationModel = new UtilizationModelFull();
-		 
-		 BufferedReader br = null;
-		 try {
+                FogDeviceCharacteristics characteristics = new FogDeviceCharacteristics(arch, os, vmm, host, time_zone, costPerSec,
+                                costPerMem, costPerStorage, costPerBw);
+
+                FogDevice fogdevice = null;
+                try {
+                        fogdevice = new FogDevice(nodeName, characteristics, new AppModuleAllocationPolicy(hostList), storageList,
+                                        10, upBw, downBw, 0, ratePerMips);
+                } catch (Exception e) {
+                        e.printStackTrace();
+                }
+
+                fogdevice.setLevel(level);
+                return fogdevice;
+        }
+
+        // initiate the task list (cloudlet list)
+        public static List<Cloudlet> createCloudlet(String filename) {
+
+                 LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+
+                // cloudlet parameters
+                 int cloudletId;
+                 long length;
+                 long fileSize;
+                 long outputSize;
+                 long memRequired;
+                 int pesNumber = 1;
+                 UtilizationModel utilizationModel = new UtilizationModelFull();
+
+                 BufferedReader br = null;
+                 try {
             String line;
             br = new BufferedReader(new FileReader(filename));
- 
+
             // How to read file in java line by line?
             while ((line = br.readLine()) != null) {
-            	if (line != null) {            		
+                if (line != null) {
                     String[] splitData = line.split(COMMA_DELIMITER);
                     cloudletId = Integer.parseInt(splitData[0]);
                     length = Long.parseLong(splitData[1]);
@@ -239,10 +243,10 @@ public class FogSchedulingExample {
                     outputSize = Long.parseLong(splitData[3]);
                     memRequired = Long.parseLong(splitData[4]);
                     Cloudlet cloudlet = new Cloudlet(cloudletId , length, pesNumber, fileSize, outputSize, memRequired, utilizationModel,
-        					utilizationModel, utilizationModel);
+                                                utilizationModel, utilizationModel);
                     list.add(cloudlet);
                 }
-            } 
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -253,23 +257,23 @@ public class FogSchedulingExample {
                 crunchifyException.printStackTrace();
             }
         }
-		 
-		return list;
+
+                return list;
     }
 
-	/**
-	 * Function to create the model.
-	 * 
-	 * @param appId
-	 *            unique identifier of the application
-	 * @param userId
-	 *            identifier of the user of the application
-	 * @return
-	 */
-	@SuppressWarnings({ })
-	private static Application createApplication(String appId, int userId) {
+        /**
+         * Function to create the model.
+         *
+         * @param appId
+         *            unique identifier of the application
+         * @param userId
+         *            identifier of the user of the application
+         * @return
+         */
+        @SuppressWarnings({ })
+        private static Application createApplication(String appId, int userId) {
 
-		Application application = Application.createApplication(appId, userId);
-		return application;
-	}
+                Application application = Application.createApplication(appId, userId);
+                return application;
+        }
 }
