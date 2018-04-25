@@ -49,7 +49,8 @@ public class FogSchedulingExample {
         public static String filename_ouput = "results_ex/" + algorithm + "_" + number_cloudlet;
 
         public static void main(String[] args) {
-
+        
+        	
                 Log.printLine("Starting scheduling simulation...");
 
                 try {
