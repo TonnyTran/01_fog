@@ -1,4 +1,5 @@
-{"nodes":[{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog01","type":"FOG_DEVICE","mips":500,"ram":5000,"downBw":10000,"costPerSec":0.16,"costPerMem":0.015,"costPerBw":0.01},
+{"nodes":[
+{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog01","type":"FOG_DEVICE","mips":500,"ram":5000,"downBw":10000,"costPerSec":0.16,"costPerMem":0.015,"costPerBw":0.01},
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog02","type":"FOG_DEVICE","mips":800,"ram":5000,"downBw":10000,"costPerSec":0.22,"costPerMem":0.02,"costPerBw":0.019},
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog03","type":"FOG_DEVICE","mips":1000,"ram":5000,"downBw":10000,"costPerSec":0.3,"costPerMem":0.025,"costPerBw":0.012},
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"fog04","type":"FOG_DEVICE","mips":700,"ram":5000,"downBw":10000,"costPerSec":0.2,"costPerMem":0.03,"costPerBw":0.018},
@@ -12,4 +13,6 @@
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud02","type":"FOG_DEVICE","mips":7000,"ram":5000,"downBw":10000,"costPerSec":1.6,"costPerMem":0.06,"costPerBw":0.06},
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud03","type":"FOG_DEVICE","mips":10000,"ram":5000,"downBw":10000,"costPerSec":2.1,"costPerMem":0.07,"costPerBw":0.07},
 {"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud04","type":"FOG_DEVICE","mips":9000,"ram":5000,"downBw":10000,"costPerSec":1.7,"costPerMem":0.08,"costPerBw":0.05},
-{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud05","type":"FOG_DEVICE","mips":7500,"ram":5000,"downBw":10000,"costPerSec":1.6,"costPerMem":0.09,"costPerBw":0.1},{"level":1,"upBw":10000,"ratePerMips":0.0,"name":"SmartGateway","type":"FOG_DEVICE","mips":2800,"ram":4000,"downBw":10000,"costPerSec":2.3,"costPerMem":0.75,"costPerBw":0.09},],"links":[]}
+{"level":2,"upBw":10000,"ratePerMips":0.0,"name":"cloud05","type":"FOG_DEVICE","mips":7500,"ram":5000,"downBw":10000,"costPerSec":1.6,"costPerMem":0.09,"costPerBw":0.1},
+{"level":1,"upBw":10000,"ratePerMips":0.0,"name":"SmartGateway","type":"FOG_DEVICE","mips":2800,"ram":4000,"downBw":10000,"costPerSec":2.3,"costPerMem":0.75,"costPerBw":0.09},
+],"links":[]}

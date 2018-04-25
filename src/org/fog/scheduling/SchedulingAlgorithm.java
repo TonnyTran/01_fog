@@ -135,6 +135,7 @@ public class SchedulingAlgorithm {
 		// initiate an individual
 		Individual individual = new Individual(cloudletList.size(), fogDevices.size() - 1, 1);
 		individual.printGene();
-		individual = localSearch.tabuSearch(individual, fogDevices, cloudletList, 100, 100000, 300, 30);
+		// stable, iteration, time, tabuLength
+		individual = localSearch.tabuSearch(individual, fogDevices, cloudletList, 20, 10000, 300, 50);
 	}
 }

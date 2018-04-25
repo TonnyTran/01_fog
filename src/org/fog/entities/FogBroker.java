@@ -61,9 +61,9 @@ public class FogBroker extends PowerDatacenterBroker{
 			case MySchedulingAlgorithm.GA:
 				MySchedulingAlgorithm.runGeneticAlgorithm(fogDevices, cloudletList);
 				break;
-//			case MySchedulingAlgorithm.LOCAL_SEARCH:
-//				MySchedulingAlgorithm.runLocalSearchAlgorithm(fogDevices, cloudletList);
-//				break;
+			case MySchedulingAlgorithm.LOCAL_SEARCH:
+				MySchedulingAlgorithm.runLocalSearchAlgorithm(fogDevices, cloudletList);
+				break;
 //			case MySchedulingAlgorithm.TABU_SEARCH:
 //				MySchedulingAlgorithm.runTabuSearchAlgorithm(fogDevices, cloudletList);
 //				break;

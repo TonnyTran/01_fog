@@ -8,6 +8,8 @@ import org.fog.entities.FogDevice;
 import org.fog.scheduling.MySchedulingAlgorithm;
 
 
+
+
 public class MyGeneticAlgorithm {
 
 	private int populationSize;
@@ -51,138 +53,12 @@ public class MyGeneticAlgorithm {
 	 * Calculates the lower boundary of Time and Cost 
 	 */
 	public void calcMinTimeCost(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
-		this.minTime = calcMinTime(fogDevices, cloudletList);
-		this.minCost = calcMinCost(fogDevices, cloudletList);
-	}
-
-	/**
-	 * Calculates the lower boundary of cost (the possible minimum cost)
-	 * 
-	 * @param fogDevices
-	 * @param cloudletList
-	 * @return Lower boundary of cost
-	 */
-	private double calcMinCost(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
-		double minCost = 0;
-		for(Cloudlet cloudlet : cloudletList) {
-			double minCloudletCost = Double.MAX_VALUE;
-			for(FogDevice fogDevice : fogDevices) {
-				double cost = calcCost(cloudlet,fogDevice);
-				if(minCloudletCost > cost) {
-					minCloudletCost = cost;
-				}
-			}
-			// the minCost is defined as the sum of all minCloudletCost
-			minCost += minCloudletCost;
-		}		
-		return minCost;
-	}
-
-
-	/**
-	 * Calculates the cost when executing a specified task (cloud-let) on a specified fog device
-	 * 
-	 * @param cloudlet
-	 * @param fogDevice
-	 * @return 
-	 */
-	private double calcCost(Cloudlet cloudlet, FogDevice fogDevice) {
-		double cost = 0;
-		// The processing cost
-		cost += fogDevice.getCharacteristics().getCostPerSecond() * cloudlet.getCloudletLength() / fogDevice.getHost().getTotalMips();
-		// The memory cost
-		cost += fogDevice.getCharacteristics().getCostPerMem() * cloudlet.getMemRequired();
-		// The bandwidth cost
-		cost += fogDevice.getCharacteristics().getCostPerBw() * (cloudlet.getCloudletFileSize() + cloudlet.getCloudletOutputSize());
-		return cost;
-	}
-
-
-	/**
-	 * Calculates the lower boundary of time (the possible minimum make-span)
-	 * 
-	 * @param fogDevices
-	 * @param cloudletList
-	 * @return
-	 */
-	private double calcMinTime(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
-		double minTime = 0;
-		double totalLength = 0;
-		double totalMips = 0;
-		for(Cloudlet cloudlet : cloudletList) {
-			totalLength += cloudlet.getCloudletLength();
-		}
-		for(FogDevice fogDevice : fogDevices) {
-			totalMips += fogDevice.getHost().getTotalMips();
-		}
-
-		// Catch divided by zero exception
-		try {
-			minTime = totalLength / totalMips;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return minTime;
-	}
-
-
-
-	/**
-	 * Calculates fitness of an specified individual.
-	 * 
-	 * @param individual : The individual to evaluate
-	 * @return The fitness of the individual
-	 */
-	public double calcFitness(MyIndividual individual, List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
-
-		// clear task list of each Fog Device before calculating fitness again
-		for(FogDevice fogDevice : fogDevices) {
-			fogDevice.getCloudletListAssignment().clear();
-		}
-
-		// Set again the task list for each fogDevice from the specified individual's chromosome
-		for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++) {
-			fogDevices.get(individual.getGene(geneIndex)) // Gets fog device
-			.getCloudletListAssignment().add(cloudletList.get(geneIndex)); // Assigns task to the fog device's task list 
-		}
-
-		//Calculates the make-span and cost
-		double makespan = 0;
-		double execTime = 0;
-		double totalCost = 0;
-		for(FogDevice fogDevice : fogDevices) {
-			double totalLength = 0;
-			for(Cloudlet cloudlet : fogDevice.getCloudletListAssignment()) {
-				totalLength += cloudlet.getCloudletLength();
-				// the total cost is sum of the cost execution of each cloudlet
-				totalCost += calcCost(cloudlet, fogDevice);
-			}
-			// execTime is the time that sfogDevice finishes its list cloudlet assignment
-			execTime = totalLength / fogDevice.getHostList().get(0).getTotalMips();
-			// make-span is defined as when the last cloudlet finished or when all fogDevices finish its work.
-			if (execTime > makespan) {
-				makespan = execTime;
-			}
-		}
-
-		//Store makespan
-		individual.setTime(makespan);
+		this.minTime = MyService.calcMinTime(fogDevices, cloudletList);
+		this.minCost = MyService.calcMinCost(fogDevices, cloudletList);
 		
-		//Store cost
-		individual.setCost(totalCost);
-
-		// Calculate fitness
-		double fitness = MySchedulingAlgorithm.TIME_WEIGHT * minTime / makespan 
-				+ (1 - MySchedulingAlgorithm.TIME_WEIGHT) * minCost / totalCost;
-
-		// Store fitness
-		individual.setFitness(fitness);
-		return fitness;
 	}
 
-	
+
 	
 	/**
 	 * Evaluates the whole population
@@ -197,7 +73,7 @@ public class MyGeneticAlgorithm {
 
 		// Loop over population evaluating individuals and summing population fitness
 		for (MyIndividual individual : population.getPopulation()) {
-			populationFitness += calcFitness(individual, fogDevices, cloudletList);
+			populationFitness += MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
 		}
 
 		//sort population in descending order
@@ -302,38 +178,21 @@ public class MyGeneticAlgorithm {
 		double sum1 = selectedProbability[array[i]];
 		double sum2 = 0.0;
 		while (true) {
-//			if (i >= this.offspringSize)
-//				break;
 			
 			if (sum2 < sum1) {
 				myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(array[i]));
 				offsprings.add(myClonedIndividual);
 				sum2 += delta;
-//				System.out.println("Loi : offspringSize : " + offsprings.size());
 				if (offsprings.size() >= this.offspringSize)
 					break;
 			} else {
 				i++;
-//				System.out.println("Loi : array[" + i + "] = " + array[i]);
 				sum1 += selectedProbability[array[i]];
 			}
 				
 		}
 		
 		
-		
-//		int size = population.size();
-//		int randomIndex;
-//		MyIndividual myClonedIndividual;
-//		int[] array = new int[size];
-//		for (int index = 0; index < size; index++)
-//			array[index] = index;
-//		MyService.shuffleArray(array);
-//		
-//		for (int offspringIndex = 0; offspringIndex < this.offspringSize; offspringIndex++) {
-//			myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(array[offspringIndex]));
-//			offsprings.add(myClonedIndividual);
-//		}
 		
 		return (new MyPopulation(offsprings));
 	}	
@@ -486,7 +345,7 @@ public class MyGeneticAlgorithm {
 		MyIndividual child2 = new MyIndividual(chromosomeLength, maxValue, false);
 		
 //		int quantityDigitsOne = MyService.rand(0,(int) chromosomeLength/2);
-		int quantityDigitsOne = (int) (chromosomeLength/digitsOneRate);
+		int quantityDigitsOne = (int) (chromosomeLength*digitsOneRate);
 		int[] randomTemplate = MyService.createRandomTemplate(chromosomeLength, quantityDigitsOne);
 		
 		for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
