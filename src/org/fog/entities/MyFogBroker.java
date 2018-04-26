@@ -11,7 +11,7 @@ public class MyFogBroker extends PowerDatacenterBroker{
 
 	private List<FogDevice> fogDevices;
 	
-	public FogBroker(String name) throws Exception {
+	public MyFogBroker(String name) throws Exception {
 		super(name);
 		// TODO Auto-generated constructor stub
 	}
