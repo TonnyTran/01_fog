@@ -43,7 +43,7 @@ public class FogSchedulingExample {
 	private static final String COMMA_DELIMITER = ",";
 //	private static boolean CLOUD = false;
 	public static String fileName = "data_infrucstructure/fog15";
-	public static String filename_cloudlet = "data/data100";
+	public static String filename_cloudlet = "data/data120";
 
 	public static void main(String[] args) {
 
