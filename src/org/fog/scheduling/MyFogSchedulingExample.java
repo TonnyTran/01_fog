@@ -27,6 +27,7 @@ import org.fog.application.Application;
 import org.fog.entities.FogBroker;
 import org.fog.entities.FogDevice;
 import org.fog.entities.FogDeviceCharacteristics;
+import org.fog.entities.MyFogBroker;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
 import org.fog.utils.FogLinearPowerModel;
@@ -59,7 +60,7 @@ public class MyFogSchedulingExample {
 
 			String appId = "scheduler"; // identifier of the application 2413793103448276
 
-			FogBroker broker = new FogBroker("broker");
+			MyFogBroker broker = new MyFogBroker("broker");
 
 			Application application = createApplication(appId, broker.getId());
 			application.setUserId(broker.getId());
