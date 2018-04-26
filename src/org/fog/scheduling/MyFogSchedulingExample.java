@@ -35,7 +35,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-public class FogSchedulingExample {
+public class MyFogSchedulingExample {
 	static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
 	static FogDevice smartGateway;
 	static List<Cloudlet> listCloudlet = new ArrayList<Cloudlet>();
