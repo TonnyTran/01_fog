@@ -44,7 +44,7 @@ public class MyFogSchedulingExample {
 	private static final String COMMA_DELIMITER = ",";
 //	private static boolean CLOUD = false;
 	public static String fileName = "data_infrucstructure/fog15";
-	public static String filename_cloudlet = "data/data120";
+	public static String filename_cloudlet = "data/data100";
 
 	public static void main(String[] args) {
 
@@ -74,8 +74,10 @@ public class MyFogSchedulingExample {
 			broker.setCloudletList(listCloudlet);
 			
 			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
-			broker.myAssignCloudlet(MySchedulingAlgorithm.LOCAL_SEARCH);
+			broker.myAssignCloudlet(MySchedulingAlgorithm.TABU_SEARCH);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.FAKED_SIMULATED_ANNEALING);
 			
+//			broker.assignCloudlet(SchedulingAlgorithm.TABU_SEARCH);
 //			broker.assignCloudlet(SchedulingAlgorithm.LOCAL_SEARCH);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -233,12 +233,25 @@ public class MyService {
 		individual.setFitness(fitness);
 		return fitness;
 	}
+	
     
     public static void swapIndividual(MyIndividual individual, int geneIndex1, int geneIndex2) {
     	int temp = individual.getGene(geneIndex1);
     	individual.setGene(geneIndex1, individual.getGene(geneIndex2));
     	individual.setGene(geneIndex2, temp);
     }
+    
+    public static MyIndividual clonedIndividual(MyIndividual individual) {
+    	int geneLength = individual.getChromosomeLength();
+    	int maxGeneValue = individual.getMaxValue();
+    	MyIndividual clonedIndividual = new MyIndividual(geneLength, maxGeneValue, false);
+    	for (int geneIndex = 0; geneIndex < geneLength; geneIndex++) {
+    		clonedIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+    	}
+    	
+    	return clonedIndividual;
+    }
+    
     
 	
 	public static void main(String[] args) {

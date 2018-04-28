@@ -61,12 +61,25 @@ public class MyFogBroker extends PowerDatacenterBroker{
 			case MySchedulingAlgorithm.GA:
 				MySchedulingAlgorithm.runGeneticAlgorithm(fogDevices, cloudletList);
 				break;
-			case MySchedulingAlgorithm.LOCAL_SEARCH:
-				MySchedulingAlgorithm.runLocalSearchAlgorithm(fogDevices, cloudletList);
-				break;
-//			case MySchedulingAlgorithm.TABU_SEARCH:
-//				MySchedulingAlgorithm.runTabuSearchAlgorithm(fogDevices, cloudletList);
+//			case MySchedulingAlgorithm.HILL_CLIMBING:
+//				MySchedulingAlgorithm.runHillClimbing(fogDevices, cloudletList);
 //				break;
+			case MySchedulingAlgorithm.TABU_SEARCH:
+				MySchedulingAlgorithm.runTabuSearchAlgorithm(fogDevices, cloudletList);
+				break;
+				
+			case MySchedulingAlgorithm.FAKED_SIMULATED_ANNEALING:
+				MySchedulingAlgorithm.runFakedSimulatedAnnealing(fogDevices, cloudletList);
+				break;
+			
+			case MySchedulingAlgorithm.SIMULATED_ANNEALING:
+				MySchedulingAlgorithm.runSimulatedAnnealing(fogDevices, cloudletList);
+				break;
+				
+			case MySchedulingAlgorithm.DEGRATED_CEILING:
+				MySchedulingAlgorithm.runDegratedCeiling(fogDevices, cloudletList);
+				break;
+	
 		}
 	}
 
