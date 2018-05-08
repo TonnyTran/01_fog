@@ -307,7 +307,7 @@ public class GeneticAlgorithm {
 				
 				// Find second parent
 				Individual parent2 = selectIndividual(population);
-				offspring = crossover2Point(parent1, parent2);
+				offspring = crossoverRandom(parent1, parent2);
 
 //				System.out.print("\nParent1: ");
 //				parent1.printGene();
@@ -335,6 +335,19 @@ public class GeneticAlgorithm {
 		return population;
 	}
 	
+	public Individual crossoverRandom(Individual parent1, Individual parent2) {
+		Individual offspring = new Individual(parent1.getChromosomeLength());
+		
+		for (int geneIndex = 0; geneIndex < parent1.getChromosomeLength(); geneIndex++) {
+			
+			if (Service.rand(0,100) > 50) {
+				offspring.setGene(geneIndex, parent1.getGene(geneIndex));
+			} else {
+				offspring.setGene(geneIndex, parent2.getGene(geneIndex));
+			}
+		}
+		return offspring;
+	}
 // crossover 2 points between 2 parents and create an offspring
 	public Individual crossover2Point(Individual parent1, Individual parent2) {
 		Individual offspring = new Individual(parent1.getChromosomeLength());
@@ -393,42 +406,15 @@ public class GeneticAlgorithm {
 	 * @return The mutated population
 	 */
 	public Population mutatePopulation(Population population, List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
-
-		// Loop over current population by fitness
+		
+		
 		for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) {
-			// if the current individual is selected to mutation phase
-			if (this.mutationRate > Math.random()) {
+			
+			if (this.mutationRate > Math.random()&&populationIndex >= this.elitismCount) {
 				Individual individual = population.getFittest(populationIndex);
-				Individual newIndividual = new Individual(individual.getChromosomeLength());
-				//listChange contains which gen change makes the individual better
-				List<Pair> listChange = new ArrayList<Pair>();
-				
-				
-				for(int cloudletId = 0; cloudletId < individual.getChromosomeLength(); cloudletId++) {
-					for(int fogId = 0; fogId < individual.getMaxValue() + 1; fogId++) {					
-						
-						for(int geneIndex = 0; geneIndex < newIndividual.getChromosomeLength(); geneIndex++) {
-							newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
-						}
-						
-						// change a gene of individual to form newIndividual
-						newIndividual.setGene(cloudletId, fogId);
-						double newFitness = calcFitness(newIndividual, fogDevices, cloudletList); 
-						//if newIndividual is better then individual, store change in listChange
-						if(newFitness > individual.getFitness()) {
-							listChange.add(new Pair(cloudletId, fogId));
-						}
-					}
-				}
-				
-				// if exist any gene make individual better, select randomly a gene change to have newIndividual
-				if(!listChange.isEmpty()) {
-					int change = Service.rand(0, listChange.size() - 1);
-					individual.setGene(listChange.get(change).getCloudletId(), listChange.get(change).getFogId());
-				}
+				individual.setGene(Service.rand(0, cloudletList.size()-1), Service.rand(0, fogDevices.size() - 1));
 			}
 		}
-		// Return mutated population
 		return population;
 	}
 
