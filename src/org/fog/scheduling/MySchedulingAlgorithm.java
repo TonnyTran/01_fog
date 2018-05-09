@@ -14,7 +14,7 @@ public class MySchedulingAlgorithm {
 	public static final String GA = "Genetic Algorithm";
 	public static final String HILL_CLIMBING = "Hill Climbing";
 	public static final String TABU_SEARCH = "tabu search";
-	public static final String FAKED_SIMULATED_ANNEALING = "Faked Simulated Annealing";
+	public static final String SACRIFICED_HILL_CLIMBING = "Sacrified Hill Climbing";
 	public static final String SIMULATED_ANNEALING = "Simulated Annealing";
 	public static final String DEGRATED_CEILING = "Degrated Ceiling";
 
@@ -30,19 +30,22 @@ public class MySchedulingAlgorithm {
 	public static final double SELECTION_PRESSURE = 2.3;
 	public static final double DIGITS_ONE_RATE = 0.91;
 
-	// Tabu Search's Parameters
-	public static final int TABU_CONSTANT = 10;
 
-	// Local Search
-	public static final int LOCALSEARCH_ITERATIONS = 300;
+	// Common parameters for Local Search
+	public static final int LOCALSEARCH_ITERATIONS = 20000;
 	public static final int LOCALSEARCH_TIME = 120;
+	
+	// Parameters for Tabu Search
 	public static final int TABU_LENGTH = 150;
 	public static final int TABU_STABLE = 100;
-	public static final double INITIAL_SACRIFICE = 0.005;
-	public static final double DESCENDING_SPEED = 1.1;
+	
+	// Parameters for Sacrified Hill Climbing
+//	public static final double INITIAL_SACRIFICE = 0.005;
+	public static final double INITIAL_SACRIFICE = 0.008;
+	public static final double DESCENDING_SPEED = 0.9;
 
-	public static final double INITIAL_TEMPERATURE = 2000;
-	public static final double ENDING_TEMPERATURE = 0.05;
+	public static final double INITIAL_TEMPERATURE = 0.0005;
+	public static final double ENDING_TEMPERATURE = 0.0005;
 
 	public static void runGeneticAlgorithm(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 		// Create GA object
@@ -90,8 +93,8 @@ public class MySchedulingAlgorithm {
 		System.out.println("\nBest solution: " + population.getIndividual(0).getFitness());
 	}
 
-	// local search algorithm
-	public static void runLocalHillClimbing(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+	// Hill Climbing
+	public static void runHillClimbing(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
 
 		// Calculate the boundary of time and cost
@@ -100,11 +103,11 @@ public class MySchedulingAlgorithm {
 		// Initiates an random individual
 		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
 		individual.printGene();
-
+		individual = localSearch.hillClimbing(individual,LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
 	}
 
-	// Faked Simulated Annealing
-	public static void runFakedSimulatedAnnealing(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+	// Sacrificed Hill Climbing
+	public static void runSacrificedHillClimbing(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 
 		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
 		// Calculate the boundary of time and cost
@@ -113,7 +116,7 @@ public class MySchedulingAlgorithm {
 		// initiates an random individual
 		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
 		individual.printGene();
-		individual = localSearch.fakeSimulatedAnnealing(individual, INITIAL_SACRIFICE, DESCENDING_SPEED,
+		individual = localSearch.sacrificedHillClimbing(individual, INITIAL_SACRIFICE, DESCENDING_SPEED,
 				LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
 
 	}
@@ -128,7 +131,7 @@ public class MySchedulingAlgorithm {
 		// initiates an random individual
 		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
 		individual.printGene();
-		individual = localSearch.simulatedAnnualing(individual, INITIAL_TEMPERATURE, ENDING_TEMPERATURE,
+		individual = localSearch.simulatedAnnealing(individual, INITIAL_TEMPERATURE, ENDING_TEMPERATURE,
 				LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
 
 	}

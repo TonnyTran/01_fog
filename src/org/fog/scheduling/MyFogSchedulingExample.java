@@ -75,7 +75,10 @@ public class MyFogSchedulingExample {
 			
 			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
 			broker.myAssignCloudlet(MySchedulingAlgorithm.TABU_SEARCH);
-//			broker.myAssignCloudlet(MySchedulingAlgorithm.FAKED_SIMULATED_ANNEALING);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.DEGRATED_CEILING);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.SACRIFICED_HILL_CLIMBING);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.SIMULATED_ANNEALING);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.HILL_CLIMBING);
 			
 //			broker.assignCloudlet(SchedulingAlgorithm.TABU_SEARCH);
 //			broker.assignCloudlet(SchedulingAlgorithm.LOCAL_SEARCH);
