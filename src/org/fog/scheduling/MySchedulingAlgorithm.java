@@ -8,6 +8,7 @@ import org.fog.scheduling.myLocalSearchAlgorithm.MyLocalSearchAlgorithm;
 import org.fog.scheduling.myGAEntities.MyGeneticAlgorithm;
 import org.fog.scheduling.myGAEntities.MyIndividual;
 import org.fog.scheduling.myGAEntities.MyPopulation;
+import org.fog.scheduling.myGAEntities.MyService;
 
 public class MySchedulingAlgorithm {
 	// Algorithm's Name
@@ -15,8 +16,10 @@ public class MySchedulingAlgorithm {
 	public static final String HILL_CLIMBING = "Hill Climbing";
 	public static final String TABU_SEARCH = "tabu search";
 	public static final String SACRIFICED_HILL_CLIMBING = "Sacrified Hill Climbing";
-	public static final String SIMULATED_ANNEALING = "Simulated Annealing";
-	public static final String DEGRATED_CEILING = "Degrated Ceiling";
+	public static final String SIMULATED_ANNEALING_BEST_NEW_RECORD = "Simulated Annealing Best New Record";
+	public static final String SIMULATED_ANNEALING_MANY_NEW_RECORDS = "Simulated Annealing Many New Records";
+	public static final String DEGRATED_CEILING_BEST_NEW_RECORD = "Degrated Ceiling Best New Record";
+	public static final String DEGRATED_CEILING_MANY_NEW_RECORDS = "Degrated Ceiling Many New Records";
 
 	// Trade-off Between Time and Cost
 	public static final double TIME_WEIGHT = 0.5;
@@ -32,12 +35,12 @@ public class MySchedulingAlgorithm {
 
 
 	// Common parameters for Local Search
-	public static final int LOCALSEARCH_ITERATIONS = 20000;
+	public static final int LOCALSEARCH_ITERATIONS = 12000;
 	public static final int LOCALSEARCH_TIME = 120;
 	
 	// Parameters for Tabu Search
-	public static final int TABU_LENGTH = 150;
-	public static final int TABU_STABLE = 100;
+	public static final int TABU_LENGTH = 30;
+	public static final int TABU_STABLE = 200;
 	
 	// Parameters for Sacrified Hill Climbing
 //	public static final double INITIAL_SACRIFICE = 0.005;
@@ -121,23 +124,38 @@ public class MySchedulingAlgorithm {
 
 	}
 
-	// Simulated Annealing
-	public static void runSimulatedAnnealing(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+	// Simulated Annealing Using Best New Record
+	public static void runSimulatedAnnealing_BestNewRecord(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 
 		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
+		
 		// Calculate the boundary of time and cost
 		localSearch.calcMinTimeCost(fogDevices, cloudletList);
 
 		// initiates an random individual
 		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
 		individual.printGene();
-		individual = localSearch.simulatedAnnealing(individual, INITIAL_TEMPERATURE, ENDING_TEMPERATURE,
+		individual = localSearch.simulatedAnnealing_BestNewRecord(individual, INITIAL_TEMPERATURE, ENDING_TEMPERATURE,
 				LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+		
+		MyIndividual clonedIndividual;
+		double bestFitness = individual.getFitness();
+		
+		for (int index = 0; index < 10; index++)
+		{
+			clonedIndividual = MyService.clonedIndividual(individual);
+			clonedIndividual = localSearch.hillClimbing(clonedIndividual,LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+			if (bestFitness < clonedIndividual.getFitness())
+				bestFitness = clonedIndividual.getFitness();
+		}
+			
+		System.out.println("Fitness of Annealing : " + individual.getFitness());
+		System.out.println("Best Fitness : " + bestFitness);
 
 	}
-
-	// Degrated Ceiling
-	public static void runDegratedCeiling(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+	
+	// Simulated Annealing Using Many New Records
+	public static void runSimulatedAnnealing_ManyNewRecords(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 
 		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
 		// Calculate the boundary of time and cost
@@ -146,7 +164,51 @@ public class MySchedulingAlgorithm {
 		// initiates an random individual
 		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
 		individual.printGene();
-		individual = localSearch.degradedCeiling(individual, LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+		individual = localSearch.simulatedAnnealing_ManyNewRecords(individual, INITIAL_TEMPERATURE, ENDING_TEMPERATURE,
+				LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+		
+		MyIndividual clonedIndividual;
+		double bestFitness = individual.getFitness();
+		
+		for (int index = 0; index < 10; index++)
+		{
+			clonedIndividual = MyService.clonedIndividual(individual);
+			clonedIndividual = localSearch.hillClimbing(clonedIndividual,LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+			if (bestFitness < clonedIndividual.getFitness())
+				bestFitness = clonedIndividual.getFitness();
+		}
+			
+		System.out.println("Fitness of Annealing : " + individual.getFitness());
+		System.out.println("Best Fitness : " + bestFitness);
+
+	}
+	
+
+	// Degrated Ceiling
+	public static void runDegratedCeiling_BestNewRecord(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+
+		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
+		// Calculate the boundary of time and cost
+		localSearch.calcMinTimeCost(fogDevices, cloudletList);
+
+		// initiates an random individual
+		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
+		individual.printGene();
+		individual = localSearch.degradedCeiling_BestNewRecord(individual, LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
+
+	}
+	
+	// Degrated Ceiling
+	public static void runDegratedCeiling_ManyNewRecords(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
+
+		MyLocalSearchAlgorithm localSearch = new MyLocalSearchAlgorithm();
+		// Calculate the boundary of time and cost
+		localSearch.calcMinTimeCost(fogDevices, cloudletList);
+
+		// initiates an random individual
+		MyIndividual individual = new MyIndividual(cloudletList.size(), fogDevices.size() - 1, true);
+		individual.printGene();
+		individual = localSearch.degradedCeiling_ManyNewRecords(individual, LOCALSEARCH_ITERATIONS, fogDevices, cloudletList);
 
 	}
 

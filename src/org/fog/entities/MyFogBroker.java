@@ -61,9 +61,11 @@ public class MyFogBroker extends PowerDatacenterBroker{
 			case MySchedulingAlgorithm.GA:
 				MySchedulingAlgorithm.runGeneticAlgorithm(fogDevices, cloudletList);
 				break;
+				
 			case MySchedulingAlgorithm.HILL_CLIMBING:
 				MySchedulingAlgorithm.runHillClimbing(fogDevices, cloudletList);
 				break;
+				
 			case MySchedulingAlgorithm.TABU_SEARCH:
 				MySchedulingAlgorithm.runTabuSearchAlgorithm(fogDevices, cloudletList);
 				break;
@@ -72,12 +74,20 @@ public class MyFogBroker extends PowerDatacenterBroker{
 				MySchedulingAlgorithm.runSacrificedHillClimbing(fogDevices, cloudletList);
 				break;
 			
-			case MySchedulingAlgorithm.SIMULATED_ANNEALING:
-				MySchedulingAlgorithm.runSimulatedAnnealing(fogDevices, cloudletList);
+			case MySchedulingAlgorithm.SIMULATED_ANNEALING_BEST_NEW_RECORD:
+				MySchedulingAlgorithm.runSimulatedAnnealing_BestNewRecord(fogDevices, cloudletList);
 				break;
 				
-			case MySchedulingAlgorithm.DEGRATED_CEILING:
-				MySchedulingAlgorithm.runDegratedCeiling(fogDevices, cloudletList);
+			case MySchedulingAlgorithm.SIMULATED_ANNEALING_MANY_NEW_RECORDS:
+				MySchedulingAlgorithm.runSimulatedAnnealing_ManyNewRecords(fogDevices, cloudletList);
+				break;
+				
+			case MySchedulingAlgorithm.DEGRATED_CEILING_BEST_NEW_RECORD:
+				MySchedulingAlgorithm.runDegratedCeiling_BestNewRecord(fogDevices, cloudletList);
+				break;
+				
+			case MySchedulingAlgorithm.DEGRATED_CEILING_MANY_NEW_RECORDS:
+				MySchedulingAlgorithm.runDegratedCeiling_ManyNewRecords(fogDevices, cloudletList);
 				break;
 	
 		}

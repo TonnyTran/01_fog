@@ -248,9 +248,28 @@ public class MyService {
     	for (int geneIndex = 0; geneIndex < geneLength; geneIndex++) {
     		clonedIndividual.setGene(geneIndex, individual.getGene(geneIndex));
     	}
+    	clonedIndividual.setCost(individual.getCost());
+    	clonedIndividual.setFitness(individual.getFitness());
+    	clonedIndividual.setMaxValue(individual.getMaxValue());
+    	clonedIndividual.setTime(individual.getTime());
     	
     	return clonedIndividual;
     }
+    
+    public static void copyAttributes(MyIndividual destIndividual, MyIndividual srcIndividual) {
+    	// Copy all genes in ADN of srcIndividual
+    	int geneLength = srcIndividual.getChromosomeLength();
+    	for (int geneIndex = 0; geneIndex < geneLength; geneIndex++) {
+    		destIndividual.setGene(geneIndex, srcIndividual.getGene(geneIndex));
+    	}
+    	
+    	// Copy the other attributes
+    	destIndividual.setCost(srcIndividual.getCost());
+    	destIndividual.setFitness(srcIndividual.getFitness());
+    	destIndividual.setMaxValue(srcIndividual.getMaxValue());
+    	destIndividual.setTime(srcIndividual.getTime());
+    }
+    
     
     
 	
