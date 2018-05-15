@@ -89,7 +89,10 @@ public class MyFogBroker extends PowerDatacenterBroker{
 			case MySchedulingAlgorithm.DEGRATED_CEILING_MANY_NEW_RECORDS:
 				MySchedulingAlgorithm.runDegratedCeiling_ManyNewRecords(fogDevices, cloudletList);
 				break;
-	
+				
+			case MySchedulingAlgorithm.COMBINATION_GA_LOCALSEARCH:
+				MySchedulingAlgorithm.runGA_LocalSearch(fogDevices, cloudletList);
+				break;
 		}
 	}
 

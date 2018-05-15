@@ -45,7 +45,7 @@ public class MyFogSchedulingExample {
 	private static final String COMMA_DELIMITER = ",";
 //	private static boolean CLOUD = false;
 	public static String fileName = "data_infrucstructure/fog15";
-	public static String filename_cloudlet = "data/data100";
+	public static String filename_cloudlet = "data/data120";
 
 	public static void main(String[] args) {
 
@@ -78,10 +78,10 @@ public class MyFogSchedulingExample {
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.TABU_SEARCH);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.DEGRATED_CEILING_MANY_NEW_RECORDS);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.SACRIFICED_HILL_CLIMBING);
-//			broker.myAssignCloudlet(MySchedulingAlgorithm.SIMULATED_ANNEALING);
+			broker.myAssignCloudlet(MySchedulingAlgorithm.SIMULATED_ANNEALING_MANY_NEW_RECORDS);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.HILL_CLIMBING);
-			
-			broker.myAssignCloudlet(MySchedulingAlgorithm.GA);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.GA);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.COMBINATION_GA_LOCALSEARCH);
 			
 //			broker.assignCloudlet(SchedulingAlgorithm.GA);
 //			broker.assignCloudlet(SchedulingAlgorithm.LOCAL_SEARCH);
