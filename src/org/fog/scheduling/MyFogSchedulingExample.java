@@ -30,6 +30,7 @@ import org.fog.entities.FogDeviceCharacteristics;
 import org.fog.entities.MyFogBroker;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
+import org.fog.scheduling.myGAEntities.MyGeneticAlgorithm;
 import org.fog.utils.FogLinearPowerModel;
 import org.fog.utils.FogUtils;
 import org.json.simple.JSONArray;
@@ -75,12 +76,14 @@ public class MyFogSchedulingExample {
 			
 			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.TABU_SEARCH);
-			broker.myAssignCloudlet(MySchedulingAlgorithm.DEGRATED_CEILING_MANY_NEW_RECORDS);
+//			broker.myAssignCloudlet(MySchedulingAlgorithm.DEGRATED_CEILING_MANY_NEW_RECORDS);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.SACRIFICED_HILL_CLIMBING);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.SIMULATED_ANNEALING);
 //			broker.myAssignCloudlet(MySchedulingAlgorithm.HILL_CLIMBING);
 			
-//			broker.assignCloudlet(SchedulingAlgorithm.TABU_SEARCH);
+			broker.myAssignCloudlet(MySchedulingAlgorithm.GA);
+			
+//			broker.assignCloudlet(SchedulingAlgorithm.GA);
 //			broker.assignCloudlet(SchedulingAlgorithm.LOCAL_SEARCH);
 		} catch (Exception e) {
 			e.printStackTrace();

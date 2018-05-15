@@ -25,13 +25,15 @@ public class MySchedulingAlgorithm {
 	public static final double TIME_WEIGHT = 0.5;
 
 	// Genetic Algorithm's Parameters
-	public static final int POPULATION_SIZE = 2000; // Number of population's individuals
-	public static final int OFFSPRING_SIZE = 1500; // Number of offsprings
+	public static final int POPULATION_SIZE = 3000; // Number of population's individuals
+	public static final int OFFSPRING_SIZE = (int)(POPULATION_SIZE*0.9); // Number of offsprings
 	public static final double MAX_TIME = 60.0; // Maximum executing time
-	public static final int MAX_GENETIC_ITERATIONS = 1500; // Maximum iterations
+	public static final int MAX_GENETIC_ITERATIONS = 1000; // Maximum iterations
 	public static final int MUTATION_SIZE = (int) 0.1 * OFFSPRING_SIZE;
-	public static final double SELECTION_PRESSURE = 2.3;
-	public static final double DIGITS_ONE_RATE = 0.91;
+	public static final double INITIAL_SELECTION_PRESSURE = 2.0;
+	public static final double ENDING_SELECTION_PRESSURE = 2.0;
+	public static final double INITIAL_DIGITS_ONE_RATE = 0.9;
+	public static final double ENDING_DIGITS_ONE_RATE = 0.9;
 
 
 	// Common parameters for Local Search
@@ -65,6 +67,14 @@ public class MySchedulingAlgorithm {
 
 		population.printPopulation();
 
+		
+		double currentDigitOneRate = INITIAL_DIGITS_ONE_RATE;
+		double descendingSpeed = (INITIAL_DIGITS_ONE_RATE - ENDING_DIGITS_ONE_RATE)/MAX_GENETIC_ITERATIONS;			
+		
+		double currentPressure = INITIAL_SELECTION_PRESSURE;
+		double pressureAscendingSpeed = (ENDING_SELECTION_PRESSURE - INITIAL_SELECTION_PRESSURE)/MAX_GENETIC_ITERATIONS;
+		
+		
 		// Keep track of current generation
 		int generationIndex = 0;
 
@@ -72,12 +82,12 @@ public class MySchedulingAlgorithm {
 		while (generationIndex < MAX_GENETIC_ITERATIONS) {
 			System.out.println("\n------------- Generation " + generationIndex + " --------------");
 
-			// offsprings = myGA.selectOffspringsRandomly2(population);
-			offsprings = myGA.selectOffspringsPressure(population, SELECTION_PRESSURE);
-			offsprings = myGA.crossoverOffspringsRandomTemplate(offsprings, DIGITS_ONE_RATE);
+//			offsprings = myGA.selectOffspringsRandomlyUniquely(population);
+			offsprings = myGA.selectOffspringsPressure(population, currentPressure);
+			offsprings = myGA.crossoverOffspringsRandomTemplate(offsprings, currentDigitOneRate);
 
-			// offsprings = myGA.crossoverOffsprings2Point(offsprings);
-			// offsprings = myGA.mutateOffsprings(offsprings);
+//			 offsprings = myGA.crossoverOffsprings2Point(offsprings);
+			 offsprings = myGA.mutateOffsprings(offsprings);
 			population = myGA.selectNextGeneration(population, offsprings, fogDevices, cloudletList);
 
 			// Prints fittest individual from population
@@ -88,6 +98,14 @@ public class MySchedulingAlgorithm {
 			// Increment the current generation
 			generationIndex++;
 			// population.printPopulation();
+			
+			
+//			currentDigitOneRate = currentDigitOneRate - descendingSpeed;
+			
+			currentPressure = currentPressure + pressureAscendingSpeed;
+			
+			System.out.println("CurrentDigitOneRate : " + currentDigitOneRate);
+			System.out.println("currentPressure : " + currentPressure);
 		}
 
 		System.out.println(">>>>>>>>>>>>>>>>>>>RESULTS<<<<<<<<<<<<<<<<<<<<<");

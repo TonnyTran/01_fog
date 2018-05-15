@@ -33,6 +33,25 @@ public class MyService {
         }
     }
 	
+	/**
+	 * Return a random double value belongs to domain [min, max)
+	 * 
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static double randDouble(double min, double max) {
+        try {
+            Random rn = new Random();
+            double range = max - min;
+            double randomNum = min + rn.nextDouble() * range;
+            return randomNum;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1.0;
+        }
+    }
+	
 	
 	/**
      * Returns a copy of the object, or null if the object cannot

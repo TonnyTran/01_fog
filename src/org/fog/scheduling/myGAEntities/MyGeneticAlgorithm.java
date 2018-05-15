@@ -51,6 +51,9 @@ public class MyGeneticAlgorithm {
 
 	/**
 	 * Calculates the lower boundary of Time and Cost 
+	 * 
+	 * @param fogDevices
+	 * @param cloudletList
 	 */
 	public void calcMinTimeCost(List<FogDevice> fogDevices, List<? extends Cloudlet> cloudletList) {
 		this.minTime = MyService.calcMinTime(fogDevices, cloudletList);
@@ -85,12 +88,13 @@ public class MyGeneticAlgorithm {
 
 	
 	/**
-	 * Selects the best parents randomly from the population
+	 * Select the parents randomly and allow more than one parent to be identical
 	 * 
 	 * @param population
-	 * @return The best parents choosed randomly
+	 * 
+	 * @return The parents chosen randomly and can be identical
 	 */
-	public MyPopulation selectOffspringsRandomly(MyPopulation population) {
+	public MyPopulation selectOffspringsRandomlyIdentical(MyPopulation population) {
 		List<MyIndividual> offsprings = new ArrayList<MyIndividual>();
 		
 		int size = population.size();
@@ -99,43 +103,56 @@ public class MyGeneticAlgorithm {
 		
 		for (int offspringIndex = 0; offspringIndex < this.offspringSize; offspringIndex++) {
 			randomIndex = MyService.rand(0, size-1);
-			myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(randomIndex));
+			myClonedIndividual = (MyIndividual) MyService.clonedIndividual(population.getIndividual(randomIndex));
 			offsprings.add(myClonedIndividual);
 		}
 		
 		return (new MyPopulation(offsprings));
 	}
 	
-	// Choose the best individuals
-	public MyPopulation selectOffspringsRandomly1(MyPopulation population) {
+	/**
+	 * Select the best parents from the population
+	 * 
+	 * @param population
+	 * 
+	 * @return The best parents from the population
+	 */
+	public MyPopulation selectBestOffsprings(MyPopulation population) {
 		List<MyIndividual> offsprings = new ArrayList<MyIndividual>();
 		
-		int size = population.size();
-		int randomIndex;
 		MyIndividual myClonedIndividual;
 		
 		for (int offspringIndex = 0; offspringIndex < this.offspringSize; offspringIndex++) {
-			myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(offspringIndex));
+			myClonedIndividual = (MyIndividual) MyService.clonedIndividual(population.getIndividual(offspringIndex));
 			offsprings.add(myClonedIndividual);
 		}
 		
 		return (new MyPopulation(offsprings));
 	}
 	
-	// Choose the individuals uniquely, randomly
-	public MyPopulation selectOffspringsRandomly2(MyPopulation population) {
+	
+	
+	/**
+	 * Select the parents randomly and uniquely
+	 * 
+	 * @param population
+	 * 
+	 * @return The parents randomly and uniquely
+	 */
+	public MyPopulation selectOffspringsRandomlyUniquely(MyPopulation population) {
 		List<MyIndividual> offsprings = new ArrayList<MyIndividual>();
 		
 		int size = population.size();
-		int randomIndex;
 		MyIndividual myClonedIndividual;
+		
+		// Create the array contain shuffled indices of individuals 
 		int[] array = new int[size];
 		for (int index = 0; index < size; index++)
 			array[index] = index;
 		MyService.shuffleArray(array);
 		
 		for (int offspringIndex = 0; offspringIndex < this.offspringSize; offspringIndex++) {
-			myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(array[offspringIndex]));
+			myClonedIndividual = (MyIndividual) MyService.clonedIndividual(population.getIndividual(array[offspringIndex]));
 			offsprings.add(myClonedIndividual);
 		}
 		
@@ -144,16 +161,33 @@ public class MyGeneticAlgorithm {
 	
 	
 	
-	public MyPopulation selectOffspringsPressure(MyPopulation population, double PS) {
+	/**
+	 * Select the best parent under given SELECTION_PRESSURE
+	 * 
+	 * @param population : The population from which best parents are chosen
+	 * @param SELECTION_PRESSURE : The given selection pressure
+	 * 
+	 * @return The best parents chosen under given selection pressure
+	 */
+	public MyPopulation selectOffspringsPressure(MyPopulation population, double SELECTION_PRESSURE) {
+
+		// Select the best parent under given selection pressure
 		List<MyIndividual> offsprings = new ArrayList<MyIndividual>();
 		
-		double bestFitness = population.getIndividual(0).getFitness();
+		// Get size of population
 		int populationSize = population.size();
-		double averageFitness = population.getPopulationFitness() / populationSize;
-		double selectionPressure = PS;
-		double scalingValue = (selectionPressure*averageFitness - bestFitness)/(selectionPressure-1);
 		
-		double[] selectedProbability = new double[populationSize];
+		// Get average fitness of the population
+		double averageFitness = population.getPopulationFitness() / populationSize;
+		
+		// Get best fitness in population (lie at index 0)
+		double bestFitness = population.getIndividual(0).getFitness();
+		
+		// Set parameter of selection pressure and its corresponding value of scaling
+		double selectionPressure = SELECTION_PRESSURE;
+		double scalingValue = (selectionPressure*averageFitness - bestFitness)/(selectionPressure-1);
+
+		// Containing the scaled fitness of each individual in the population
 		double[] scaledFitness = new double[populationSize];
 		double fitness, scalingFitnessSum = 0.0;
 		for (int index = 0; index < populationSize; index++) {
@@ -162,37 +196,50 @@ public class MyGeneticAlgorithm {
 			scalingFitnessSum += scaledFitness[index];
 		}
 		
+		// Calculate the probability of selection for each individual in population
+		double[] selectedProbability = new double[populationSize];
 		for (int index = 0; index < populationSize; index++) {
 			selectedProbability[index] = (this.offspringSize * scaledFitness[index])/scalingFitnessSum;
 		}
-		
-//		double delta = scalingFitnessSum / offspringSize;
-		double delta = 1.0;
+
+		// Set locations randomly for each individual in SUS board
 		int[] array = new int[populationSize];
 		for (int index = 0; index < populationSize; index++)
 			array[index] = index;
 		MyService.shuffleArray(array);
 		
+		// Contain the individual cloned
 		MyIndividual myClonedIndividual;
+
+		// Set the random offset for SUS board
+		double randomOffset = MyService.randDouble(0.0, 1.0);
+		
+		// The standard distance at where the arrows placed
+		double standardDistance = randomOffset;
+		
+		// The standard distance between arrows in SUS board 
+		double delta = (offspringSize - randomOffset)/offspringSize;
+		
+		// The accumulated distance for selecting the best parents
+		double accumulatedDistance = selectedProbability[array[0]];
+		
+		// Traverse from the first individual in SUS board
 		int i = 0;
-		double sum1 = selectedProbability[array[i]];
-		double sum2 = 0.0;
-		while (true) {
+		while (true) {	
 			
-			if (sum2 < sum1) {
-				myClonedIndividual = (MyIndividual) MyService.deepCopy(population.getIndividual(array[i]));
+			// Found the section containing the arrow
+			if (standardDistance <= accumulatedDistance) {
+				myClonedIndividual = (MyIndividual) MyService.clonedIndividual(population.getIndividual(array[i]));
 				offsprings.add(myClonedIndividual);
-				sum2 += delta;
+				standardDistance += delta;
 				if (offsprings.size() >= this.offspringSize)
 					break;
 			} else {
 				i++;
-				sum1 += selectedProbability[array[i]];
+				accumulatedDistance += selectedProbability[array[i]];
 			}
 				
 		}
-		
-		
 		
 		return (new MyPopulation(offsprings));
 	}	
@@ -344,7 +391,6 @@ public class MyGeneticAlgorithm {
 		MyIndividual child1 = new MyIndividual(chromosomeLength, maxValue, false);
 		MyIndividual child2 = new MyIndividual(chromosomeLength, maxValue, false);
 		
-//		int quantityDigitsOne = MyService.rand(0,(int) chromosomeLength/2);
 		int quantityDigitsOne = (int) (chromosomeLength*digitsOneRate);
 		int[] randomTemplate = MyService.createRandomTemplate(chromosomeLength, quantityDigitsOne);
 		
@@ -363,6 +409,8 @@ public class MyGeneticAlgorithm {
 		
 		return offsprings;
 	}
+	
+	
 	
 	/**
 	 * Mutates some parents to produce new offsprings
@@ -392,6 +440,8 @@ public class MyGeneticAlgorithm {
 
 		return parents;
 	}
+	
+	
 	
 	/**
 	 * Selects the best individuals for next generation

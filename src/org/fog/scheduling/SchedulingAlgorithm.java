@@ -25,8 +25,8 @@ public class SchedulingAlgorithm {
         public static final double TIME_WEIGHT = 0.5;
 
 //GA and BEE  parameters
-        public static final int NUMBER_INDIVIDUAL = 400;
-        public static final int NUMBER_ITERATION = 1000;
+        public static final int NUMBER_INDIVIDUAL = 3000;
+        public static final int NUMBER_ITERATION = 2000;
 
         public static final double MUTATION_RATE = 0.1;
         public static final double CROSSOVER_RATE = 0.9;
