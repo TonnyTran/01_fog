@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.fog.entities.FogDevice;
+import org.fog.scheduling.MyStatistic;
 import org.fog.scheduling.myGAEntities.MyIndividual;
 import org.fog.scheduling.myGAEntities.MyService;
 
@@ -56,6 +57,8 @@ public class MyLocalSearchAlgorithm {
 		// Get the length of gene and its value domain
 		int chromosomeLength = individual.getChromosomeLength();
 		int maxGeneValue = individual.getMaxValue();
+		
+		ArrayList<Double> sacrificedHillClimbingFitness = new ArrayList<Double>();
 		
 		// Do iterations of local search and set up the initial time
 		double start = System.currentTimeMillis();
@@ -148,7 +151,9 @@ public class MyLocalSearchAlgorithm {
 				bestFitness = currentFitness;
 				MyService.copyAttributes(bestIndividual, individual);
 			}
-
+			
+			sacrificedHillClimbingFitness.add(iterationIndex, currentFitness);
+			
 			// Create a new neighbor of this new individual
 			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
 				neighborIndividual.setGene(geneIndex, individual.getGene(geneIndex));
@@ -164,6 +169,7 @@ public class MyLocalSearchAlgorithm {
 		} while (iterationIndex < numIterations);
 
 		System.out.println("Running Time : " + (System.currentTimeMillis() - start));
+		MyStatistic.sacrificedHillClimbingFitness = sacrificedHillClimbingFitness;
 		
 		return bestIndividual;
 	}
@@ -199,6 +205,10 @@ public class MyLocalSearchAlgorithm {
 		// Get the length of gene and its value domain
 		int chromosomeLength = individual.getChromosomeLength();
 		int maxGeneValue = individual.getMaxValue();
+		
+		
+		ArrayList<Double> hillClimbingFitness = new ArrayList<Double>();
+
 		
 		// Do iterations of local search and set up the initial time
 		double start = System.currentTimeMillis();
@@ -288,7 +298,10 @@ public class MyLocalSearchAlgorithm {
 				bestFitness = currentFitness;
 				MyService.copyAttributes(bestIndividual, individual);
 			}
+			
+			hillClimbingFitness.add(iterationIndex, currentFitness);
 
+			
 			// Create a new neighbor of this new individual
 			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
 				neighborIndividual.setGene(geneIndex, individual.getGene(geneIndex));
@@ -304,195 +317,13 @@ public class MyLocalSearchAlgorithm {
 		} while (iterationIndex < numIterations);
 
 		System.out.println("Running Time : " + (System.currentTimeMillis() - start));
-		
+		MyStatistic.hillClimbingFitness = hillClimbingFitness;
+
 		return bestIndividual;
 	}
 
 	
 	
-	/**
-	 * Local Search using Simulated Annealing Strategy using one best record (sd 1 kỷ lục tốt nhất)
-	 * 
-	 * @param individual : The initial individual of Local Search
-	 * @param INITIAL_TEMPERATURE : The initial temperature of frozen schedule
-	 * @param ENDING_TEMPERATURE : The ending temperature of frozen schedule
-	 * @param numIterations : The max iterations of Local Search
-	 * @param fogDevices : List of Fog Devices
-	 * @param cloudletList : List of Tasks (need to be assigned on a specific Fog Device)
-	 * 
-	 * @return maxIndividual : The best individual in Local Search process
-	 */
-	public MyIndividual simulatedAnnealing_BestNewRecord(MyIndividual individual, double INITIAL_TEMPERATURE,
-			double ENDING_TEMPERATURE, int numIterations, List<FogDevice> fogDevices,
-			List<? extends Cloudlet> cloudletList) {
-
-		// Set up parameters of Simulated Annealing
-		double currentTemperature = INITIAL_TEMPERATURE;
-		double descendingSpeed = 1 - (Math.log(INITIAL_TEMPERATURE) - Math.log(ENDING_TEMPERATURE)) / numIterations;
-		
-		// Get the length of ADN and its domain
-		int chromosomeLength = individual.getChromosomeLength();
-		int maxGeneValue = individual.getMaxValue();
-		
-		// Calculate current fitness of the individual
-		double currentFitness = MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
-		
-		// The best fitness (current best record - Kỷ lục tốt nhất hiện tại)
-		double bestFitness = currentFitness;
-		MyIndividual bestIndividual = (MyIndividual) MyService.clonedIndividual(individual);
-		
-		// Initialize the neighbor of the individual
-		MyIndividual neighborIndividual = (MyIndividual) MyService.clonedIndividual(individual);
-		
-		// Contains good local moves (good neighbors) at each iteration
-		List<MyAbstractLocalMove> listLocalMoves = new ArrayList<MyAbstractLocalMove>();
-		
-		// The best neighbor surpassing the current best fitness
-		MyAbstractLocalMove maxLocalMove = null;
-		
-		// The best neighbor's fitness surpassing the current best fitness
-		double bestLocalFitness = Double.MIN_VALUE;
-		
-		double random;
-		int iterationIndex = 0;
-		while (iterationIndex < numIterations) {
-			
-			System.out.println("\n--------------------------------------");
-			System.out.println("Iteration : " + iterationIndex + " : ");
-
-			// Clear all local moves at previous step
-			listLocalMoves.clear();
-
-			// The best neighbor's fitness surpassing the current best fitness
-			bestLocalFitness = Double.MIN_VALUE;
-			
-			// Choose the better neighbors
-			int oldGeneValue;
-			double neighborFitness;
-			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
-				for (int geneValue = 0; geneValue <= maxGeneValue; geneValue++) {
-					
-					// Moves to new neighbor and calculates its fitness
-					neighborIndividual.setGene(geneIndex, geneValue);
-					neighborFitness = MyService.calcFitness(neighborIndividual, this.minTime, this.minCost, fogDevices,
-							cloudletList);
-					
-					random = (Math.random());
-					
-					// Checks condition of taking part in the better neighbors
-					if (neighborFitness > bestFitness) {
-						bestLocalFitness = neighborFitness;
-						maxLocalMove = new MyAssignLocalMove(geneIndex, geneValue);
-					} 
-					// Simulated Annealing Mechanism - Accept the sacrifices
-					else if (random <= Math.exp(-(currentFitness - neighborFitness) / currentTemperature)) {
-						listLocalMoves.add(new MyAssignLocalMove(geneIndex, geneValue));
-					}
-
-					// Moves the new neighbor back to current state
-					oldGeneValue = individual.getGene(geneIndex);
-					neighborIndividual.setGene(geneIndex, oldGeneValue);
-				}
-			}
-
-			int geneIndex1, geneIndex2;
-			for (geneIndex1 = 0; geneIndex1 < chromosomeLength - 1; geneIndex1++) {
-				for (geneIndex2 = geneIndex1 + 1; geneIndex2 < chromosomeLength; geneIndex2++) {
-					
-					// Moves to new neighbor and calculates its fitness
-					MyService.swapIndividual(neighborIndividual, geneIndex1, geneIndex2);
-					neighborFitness = MyService.calcFitness(neighborIndividual, this.minTime, this.minCost, fogDevices,
-							cloudletList);
-					
-					random = (Math.random());
-					
-					// Checks condition of taking part in the better neighbors
-					if (neighborFitness > bestFitness) {
-						bestLocalFitness = neighborFitness;
-						maxLocalMove = new MySwapLocalMove(geneIndex1, geneIndex2);
-					}
-					// Simulated Annealing Mechanism - Accept the sacrifices
-					else if (random <= Math.exp(-(currentFitness - neighborFitness) / currentTemperature)) {
-						listLocalMoves.add(new MySwapLocalMove(geneIndex1, geneIndex2));
-					}
-
-					// Moves the new neighbor back to current state
-					MyService.swapIndividual(neighborIndividual, geneIndex1, geneIndex2);
-				}
-			}
-
-			System.out.println("Number of changelist: " + listLocalMoves.size());
-
-			// If exists any neighbor surpassing current best fitness, choose it immediately
-			if (bestLocalFitness > bestFitness) {
-				
-				if (maxLocalMove instanceof MyAssignLocalMove) {
-					int geneIndex = ((MyAssignLocalMove) maxLocalMove).getGeneIndex();
-					int geneValue = ((MyAssignLocalMove) maxLocalMove).getGeneValue();
-					individual.setGene(geneIndex, geneValue);
-					System.out.println("Local Move : Assign Individual[" + geneIndex + "] = " + geneValue);
-				} else if (maxLocalMove instanceof MySwapLocalMove) {
-					geneIndex1 = ((MySwapLocalMove) maxLocalMove).getGeneIndex1();
-					geneIndex2 = ((MySwapLocalMove) maxLocalMove).getGeneIndex2();
-					MyService.swapIndividual(individual, geneIndex1, geneIndex2);
-					System.out.println("Local Move : Swap geneIndex1 = " + geneIndex1 + ", geneIndex2 = " + geneIndex2);
-				}
-			}
-
-			// Chooses randomly a better neighbor from listLocalMoves
-			else if (!listLocalMoves.isEmpty()) {
-
-				int localMoveIndex = MyService.rand(0, listLocalMoves.size() - 1);
-				MyAbstractLocalMove abstractLocalMove = listLocalMoves.get(localMoveIndex);
-
-				if (abstractLocalMove instanceof MyAssignLocalMove) {
-					int geneIndex = ((MyAssignLocalMove) abstractLocalMove).getGeneIndex();
-					int geneValue = ((MyAssignLocalMove) abstractLocalMove).getGeneValue();
-					individual.setGene(geneIndex, geneValue);
-					System.out.println("Local Move : Assign Individual[" + geneIndex + "] = " + geneValue);
-
-				} else if (abstractLocalMove instanceof MySwapLocalMove) {
-					geneIndex1 = ((MySwapLocalMove) abstractLocalMove).getGeneIndex1();
-					geneIndex2 = ((MySwapLocalMove) abstractLocalMove).getGeneIndex2();
-					MyService.swapIndividual(individual, geneIndex1, geneIndex2);
-					System.out.println("Local Move : Swap geneIndex1 = " + geneIndex1 + ", geneIndex2 = " + geneIndex2);
-				}
-
-			} else { // Restarts if list of local moves is empty
-				System.out.println("\nRestart ...\n");
-				break;
-			}
-
-			// Descend current temperature according to gradually frozen schedule
-//			currentTemperature *= descendingSpeed;
-
-			// Get fitness of the individual
-			currentFitness = MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
-
-			// Updates the best fitness
-			if (currentFitness > bestFitness) {
-				bestFitness = currentFitness;
-				MyService.copyAttributes(bestIndividual, individual);
-			}
-
-			// Create a new neighbor
-			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
-				neighborIndividual.setGene(geneIndex, individual.getGene(geneIndex));
-			}
-			
-			individual.printGene();
-			System.out.println("\nFitness value: " + individual.getFitness());
-			System.out.println("Min Time: " + this.getMinTime() + "/// Makespan: " + individual.getTime());
-			System.out.println("Min Cost: " + this.getMinCost() + "/// TotalCost: " + individual.getCost());
-			System.out.println("Best Fitness : " + bestFitness);
-			System.out.println("Current Temperature : " + currentTemperature);
-
-			iterationIndex++;
-		}
-		
-		return bestIndividual;
-	}
-
 	
 	/**
 	 * Local Search using Simulated Annealing Strategy using many new records (sd nhiều kỷ lục mới so với kỷ lục trước)
@@ -506,7 +337,7 @@ public class MyLocalSearchAlgorithm {
 	 * 
 	 * @return maxIndividual : The best individual in Local Search process
 	 */
-	public MyIndividual simulatedAnnealing_ManyNewRecords(MyIndividual individual, double INITIAL_TEMPERATURE,
+	public MyIndividual simulatedAnnealing(MyIndividual individual, double INITIAL_TEMPERATURE,
 			double ENDING_TEMPERATURE, int numIterations, List<FogDevice> fogDevices,
 			List<? extends Cloudlet> cloudletList) {
 
@@ -533,6 +364,8 @@ public class MyLocalSearchAlgorithm {
 		
 		// The best neighbor (new records) surpassing the current best fitness
 		List<MyAbstractLocalMove> localMovesOfManyNewRecords = new ArrayList<MyAbstractLocalMove>();
+		
+		ArrayList<Double> simulatedAnnealingFitness = new ArrayList<Double>();
 		
 		double random;
 		int iterationIndex = 0;
@@ -658,6 +491,8 @@ public class MyLocalSearchAlgorithm {
 				MyService.copyAttributes(bestIndividual, individual);
 			}
 				
+			simulatedAnnealingFitness.add(iterationIndex, currentFitness);
+			
 			// Create a new neighbor
 			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
 				neighborIndividual.setGene(geneIndex, individual.getGene(geneIndex));
@@ -673,188 +508,17 @@ public class MyLocalSearchAlgorithm {
 			iterationIndex++;
 		}
 		
-		return bestIndividual;
-	}
-
-	
-	
-	
-	/**
-	 * Local Search using Degrated Ceiling Strategy
-	 * 
-	 * @param individual : The initial individual of Local Search
-	 * @param numIterations : The max iterations of Local Search
-	 * @param fogDevices : List of Fog Devices
-	 * @param cloudletList : List of Tasks (need to be assigned on a specific Fog Device)
-	 * 
-	 * @return maxIndividual : The best individual in Local Search process
-	 */
-	public MyIndividual degradedCeiling_BestNewRecord(MyIndividual individual, int numIterations, List<FogDevice> fogDevices,
-			List<? extends Cloudlet> cloudletList) {
-		
-		// Set up the parameters of Degrated Ceiling
-		double currentCeiling = MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
-		double descendingSpeed = (0.9 - currentCeiling) / numIterations;
-		
-		// Get length of ADN and its domain
-		int chromosomeLength = individual.getChromosomeLength();
-		int maxGeneValue = individual.getMaxValue();
-		
-		// Calculate the current fitness of the individual
-		double currentFitness = MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
-		
-		// Save the best individual and its best fitness
-		double bestFitness = currentFitness;
-		MyIndividual bestIndividual = (MyIndividual) MyService.clonedIndividual(individual);
-		
-		// Create new neighbor of the individual 
-		MyIndividual neighborIndividual = (MyIndividual) MyService.clonedIndividual(individual);
-		
-		// Contains local moves to good neighbors
-		List<MyAbstractLocalMove> listLocalMoves = new ArrayList<MyAbstractLocalMove>();
-		
-		// Save the new record (if exists) and its fitness at each iteration
-		MyAbstractLocalMove newLocalMoveRecord = null;
-		double newLocalMoveRecordFitness = Double.MIN_VALUE;
-		
-		System.out.println("\nInitial Fitness : " + currentFitness);
-		
-		int iterationIndex = 0;
-		while (iterationIndex < numIterations) {
-			
-			System.out.println("\n--------------------------------------");
-			System.out.println("Iteration : " + iterationIndex + " : ");
-
-			// Clear all local moves at previous step
-			listLocalMoves.clear();
-
-			// Choose the better assigning neighbors
-			int oldGeneValue;
-			double neighborFitness;
-			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
-				for (int geneValue = 0; geneValue <= maxGeneValue; geneValue++) {
-					
-					// Moves to new neighbor and calculates its fitness
-					neighborIndividual.setGene(geneIndex, geneValue);
-					neighborFitness = MyService.calcFitness(neighborIndividual, this.minTime, this.minCost, fogDevices,
-							cloudletList);
-
-					// Checks condition of taking part in the better neighbors
-					if (neighborFitness > bestFitness) {
-						if (newLocalMoveRecordFitness < neighborFitness) {
-							newLocalMoveRecordFitness = neighborFitness;
-							newLocalMoveRecord = new MyAssignLocalMove(geneIndex, geneValue);
-						}
-
-					} else if (neighborFitness >= currentCeiling) {
-						listLocalMoves.add(new MyAssignLocalMove(geneIndex, geneValue));
-					}
-
-					// Moves back to current state
-					oldGeneValue = individual.getGene(geneIndex);
-					neighborIndividual.setGene(geneIndex, oldGeneValue);
-				}
-			}
-
-			// Choose the better swapping neighbors
-			int geneIndex1, geneIndex2;
-			for (geneIndex1 = 0; geneIndex1 < chromosomeLength - 1; geneIndex1++) {
-				for (geneIndex2 = geneIndex1 + 1; geneIndex2 < chromosomeLength; geneIndex2++) {
-					
-					// Moves to new neighbor and calculates its fitness
-					MyService.swapIndividual(neighborIndividual, geneIndex1, geneIndex2);
-					neighborFitness = MyService.calcFitness(neighborIndividual, this.minTime, this.minCost, fogDevices,
-							cloudletList);
-					
-					if (neighborFitness > bestFitness) {
-						if (newLocalMoveRecordFitness < neighborFitness) {
-							newLocalMoveRecordFitness = neighborFitness;
-							newLocalMoveRecord = new MySwapLocalMove(geneIndex1, geneIndex2);
-						}
-
-					} else if (neighborFitness >= currentCeiling) {
-						listLocalMoves.add(new MySwapLocalMove(geneIndex1, geneIndex2));
-					}
-
-					// Moves back to current state
-					MyService.swapIndividual(neighborIndividual, geneIndex1, geneIndex2);
-				}
-			}
-
-			System.out.println("Number of changelist: " + listLocalMoves.size());
-
-			// If exists new record, choose the record immediately
-			if (newLocalMoveRecordFitness > bestFitness) {
-				if (newLocalMoveRecord instanceof MyAssignLocalMove) {
-					int geneIndex = ((MyAssignLocalMove) newLocalMoveRecord).getGeneIndex();
-					int geneValue = ((MyAssignLocalMove) newLocalMoveRecord).getGeneValue();
-					individual.setGene(geneIndex, geneValue);
-					System.out.println("Local Move : Assign Individual[" + geneIndex + "] = " + geneValue);
-				} else if (newLocalMoveRecord instanceof MySwapLocalMove) {
-					geneIndex1 = ((MySwapLocalMove) newLocalMoveRecord).getGeneIndex1();
-					geneIndex2 = ((MySwapLocalMove) newLocalMoveRecord).getGeneIndex2();
-					MyService.swapIndividual(individual, geneIndex1, geneIndex2);
-					System.out.println("Local Move : Swap geneIndex1 = " + geneIndex1 + ", geneIndex2 = " + geneIndex2);
-				}
-			}
-
-			// Chooses randomly a better neighbor from listLocalMoves
-			else if (!listLocalMoves.isEmpty()) {
-
-				int localMoveIndex = MyService.rand(0, listLocalMoves.size() - 1);
-				MyAbstractLocalMove abstractLocalMove = listLocalMoves.get(localMoveIndex);
-
-				if (abstractLocalMove instanceof MyAssignLocalMove) {
-					int geneIndex = ((MyAssignLocalMove) abstractLocalMove).getGeneIndex();
-					int geneValue = ((MyAssignLocalMove) abstractLocalMove).getGeneValue();
-					individual.setGene(geneIndex, geneValue);
-					System.out.println("Local Move : Assign Individual[" + geneIndex + "] = " + geneValue);
-
-				} else if (abstractLocalMove instanceof MySwapLocalMove) {
-					geneIndex1 = ((MySwapLocalMove) abstractLocalMove).getGeneIndex1();
-					geneIndex2 = ((MySwapLocalMove) abstractLocalMove).getGeneIndex2();
-					MyService.swapIndividual(individual, geneIndex1, geneIndex2);
-					System.out.println("Local Move : Swap geneIndex1 = " + geneIndex1 + ", geneIndex2 = " + geneIndex2);
-				}
-
-			} else { // Restarts if list of local moves is empty
-				System.out.println("\nRestart : Stop Degrated Ceiling\n");
-				break;
-			}
-
-			currentCeiling += descendingSpeed;
-			individual.printGene();
-
-			// Calculates fitness again
-			currentFitness = MyService.calcFitness(individual, this.minTime, this.minCost, fogDevices, cloudletList);
-
-			// Updates the best fitness
-			if (currentFitness > bestFitness) {
-				bestFitness = currentFitness;
-				MyService.copyAttributes(bestIndividual, individual);
-			}
-
-			// Create a new neighbor
-			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
-				neighborIndividual.setGene(geneIndex, individual.getGene(geneIndex));
-			}
-
-			System.out.println("\nFitness value: " + individual.getFitness());
-			System.out.println("Min Time: " + this.getMinTime() + "/// Makespan: " + individual.getTime());
-			System.out.println("Min Cost: " + this.getMinCost() + "/// TotalCost: " + individual.getCost());
-			System.out.println("Best Fitness : " + bestFitness);
-			System.out.println("Current Ceiling : " + currentCeiling);
-			
-			iterationIndex++;
-
-		}
+		MyStatistic.simulatedAnnealingFitness = simulatedAnnealingFitness;
 		
 		return bestIndividual;
 	}
 
 	
-	// _ManyNewRecords
-	public MyIndividual degradedCeiling_ManyNewRecords(MyIndividual individual, int numIterations, List<FogDevice> fogDevices,
+	
+	
+	
+
+	public MyIndividual degradedCeiling(MyIndividual individual, int numIterations, List<FogDevice> fogDevices,
 			List<? extends Cloudlet> cloudletList) {
 		
 		// Set up the parameters of Degrated Ceiling
@@ -883,6 +547,8 @@ public class MyLocalSearchAlgorithm {
 //		double newLocalMoveRecordFitness = Double.MIN_VALUE;
 		
 		System.out.println("\nInitial Fitness : " + currentFitness);
+		
+		ArrayList<Double> degratedCeilingFitness = new ArrayList<Double>();
 		
 		int iterationIndex = 0;
 		while (iterationIndex < numIterations) {
@@ -1000,6 +666,8 @@ public class MyLocalSearchAlgorithm {
 				bestFitness = currentFitness;
 				MyService.copyAttributes(bestIndividual, individual);
 			}
+			
+			degratedCeilingFitness.add(iterationIndex, currentFitness);
 
 			// Create a new neighbor
 			for (int geneIndex = 0; geneIndex < chromosomeLength; geneIndex++) {
@@ -1015,6 +683,8 @@ public class MyLocalSearchAlgorithm {
 			iterationIndex++;
 
 		}
+		
+		MyStatistic.degratedCeilingFitness = degratedCeilingFitness;
 		
 		return bestIndividual;
 	}
@@ -1059,6 +729,8 @@ public class MyLocalSearchAlgorithm {
 		
 		System.out.println("Initial Fitness : " + currentFitness);
 
+		ArrayList<Double> tabuFitness = new ArrayList<Double>();
+		
 		// Do iterations for Tabu Search
 		maxTime = maxTime * 1000;
 		int notImprovingCount = 0;
@@ -1173,9 +845,12 @@ public class MyLocalSearchAlgorithm {
 			System.out.println("Min Time: " + this.getMinTime() + "/// Makespan: " + individual.getTime());
 			System.out.println("Min Cost: " + this.getMinCost() + "/// TotalCost: " + individual.getCost());
 			
+			tabuFitness.add(iterationIndex, currentFitness);
+			
 			iterationIndex++;
 		}
 
+		MyStatistic.tabuFitness = tabuFitness;
 		return bestIndividual;
 
 	}

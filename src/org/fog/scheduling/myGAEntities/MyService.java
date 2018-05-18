@@ -275,6 +275,8 @@ public class MyService {
     	return clonedIndividual;
     }
     
+    
+    
     public static void copyAttributes(MyIndividual destIndividual, MyIndividual srcIndividual) {
     	// Copy all genes in ADN of srcIndividual
     	int geneLength = srcIndividual.getChromosomeLength();

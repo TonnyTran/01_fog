@@ -9,7 +9,7 @@ import org.fog.scheduling.gaEntities.Service;
  */
 public class MyIndividual implements java.io.Serializable{
 
-	private int[] chromosome; // The chain of DNA (or solution)
+	private int[] chromosome; // The chain of ADN (or solution)
 	private double cost;
 	private double time;
 	private double fitness = -1;
