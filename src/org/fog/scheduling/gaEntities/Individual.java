@@ -7,7 +7,7 @@ public class Individual {
 	private double time;
 	private double fitness = -1;
 	private int maxValue;
-	
+	private int timeLive;
 	public Individual(int chromosomeLength, int maxValue) {
 		this.chromosome = new int[chromosomeLength];
 		this.maxValue = maxValue;
@@ -100,6 +100,15 @@ public class Individual {
 		this.maxValue = maxValue;
 	}
 
+	public int getTimeLive() {
+		return timeLive;
+	}
+
+	public void setTimeLive(int timeLive) {
+		this.timeLive = timeLive;
+	}
 	
-	
+	public void decTimeLive() {
+		this.timeLive--;
+	}
 }

@@ -49,6 +49,9 @@ public class FogBroker extends PowerDatacenterBroker{
 			case SchedulingAlgorithm.BEE:
 				SchedulingAlgorithm.runBeeAlgorithm(fogDevices, cloudletList);
 				break;	
+			case SchedulingAlgorithm.BEE2:
+				SchedulingAlgorithm.runBee2Algorithm(fogDevices, cloudletList);
+				break;	
 			case SchedulingAlgorithm.LOCAL_SEARCH:
 				SchedulingAlgorithm.runLocalSearchAlgorithm(fogDevices, cloudletList);
 				break;

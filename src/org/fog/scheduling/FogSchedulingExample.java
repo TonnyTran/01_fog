@@ -1,15 +1,12 @@
 package org.fog.scheduling;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.io.*;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Host;
@@ -73,7 +70,14 @@ public class FogSchedulingExample {
 			broker.setCloudletList(listCloudlet);
 			
 			// set up the scheduling algorithm to run cloudlet in fog-cloud infrucstructure
-			broker.assignCloudlet(SchedulingAlgorithm.BEE);
+			
+			PrintWriter pw=new PrintWriter(new File("time.txt"));
+			pw.print("");
+			pw.close();
+			pw=new PrintWriter(new File("test.txt"));
+			pw.print("");
+			pw.close();
+			for(int i=0;i<5;i++) broker.assignCloudlet(SchedulingAlgorithm.BEE);
 
 		} catch (Exception e) {
 			e.printStackTrace();

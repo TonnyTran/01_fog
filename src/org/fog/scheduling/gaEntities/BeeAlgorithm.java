@@ -411,6 +411,127 @@ public class BeeAlgorithm {
 		return population;
 	}
 
+	public Population searchFood2(Population population, List<FogDevice> fogDevices,
+			List<? extends Cloudlet> cloudletList) {
+		Individual individual;
+		Individual newIndividual;
+		int timeLive=5000;
+		// Number of scout bee
+		int numScout;
+
+		// Neighborhood search from elite bee (dynamic search)
+		for (int populationIndex = 0; populationIndex < elitismCount; populationIndex++) {
+			numScout = 100;
+			individual = population.getFittest(populationIndex);
+			
+			for (int j = 0; j < numScout; j++) {
+				if(individual.getTimeLive()==0) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, Service.rand(0, fogDevices.size() - 1));
+					break;
+				}
+				// Create new individual identical to current one
+				newIndividual = new Individual(individual.getChromosomeLength());
+				for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+					newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+
+				// Change random job to random node
+				int job = Service.rand(0, cloudletList.size() - 1);
+				int fogOld = newIndividual.getGene(job);
+				int fogNew = Service.rand(0, fogDevices.size() - 1);
+				newIndividual.setGene(job, fogNew);
+				calcFitness(newIndividual, fogDevices, cloudletList);
+				if (newIndividual.getFitness() > individual.getFitness()) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, newIndividual.getGene(geneIndex));
+					calcFitness(individual, fogDevices, cloudletList);
+					individual.setTimeLive(timeLive);
+					continue;
+				}
+
+				// Switch 2 random job from 2 random node
+				int offset = Service.rand(0, fogDevices.size() - 1);
+				for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++) {
+					if (newIndividual.getGene((geneIndex + offset) % fogDevices.size()) == fogNew) {
+						newIndividual.setGene((geneIndex + offset) % fogDevices.size(), fogOld);
+						break;
+					}
+
+				}
+				calcFitness(newIndividual, fogDevices, cloudletList);
+				if (newIndividual.getFitness() > individual.getFitness()) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, newIndividual.getGene(geneIndex));
+					calcFitness(individual, fogDevices, cloudletList);
+					individual.setTimeLive(timeLive);
+					continue;
+				}
+				individual.decTimeLive();
+			}
+
+		}
+		
+		for (int populationIndex = elitismCount;populationIndex < (int) (0.85 * populationSize); populationIndex++) {
+			numScout = 20;
+			individual = population.getFittest(populationIndex);
+			
+			for (int j = 0; j < numScout; j++) {
+				if(individual.getTimeLive()==0) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, Service.rand(0, fogDevices.size() - 1));
+					break;
+				}
+				// Create new individual identical to current one
+				newIndividual = new Individual(individual.getChromosomeLength());
+				for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+					newIndividual.setGene(geneIndex, individual.getGene(geneIndex));
+
+				// Change random job to random node
+				int job = Service.rand(0, cloudletList.size() - 1);
+				int fogOld = newIndividual.getGene(job);
+				int fogNew = Service.rand(0, fogDevices.size() - 1);
+				newIndividual.setGene(job, fogNew);
+				calcFitness(newIndividual, fogDevices, cloudletList);
+				if (newIndividual.getFitness() > individual.getFitness()) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, newIndividual.getGene(geneIndex));
+					calcFitness(individual, fogDevices, cloudletList);
+					individual.setTimeLive(timeLive);
+					continue;
+				}
+
+				// Switch 2 random job from 2 random node
+				int offset = Service.rand(0, fogDevices.size() - 1);
+				for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++) {
+					if (newIndividual.getGene((geneIndex + offset) % fogDevices.size()) == fogNew) {
+						newIndividual.setGene((geneIndex + offset) % fogDevices.size(), fogOld);
+						break;
+					}
+
+				}
+				calcFitness(newIndividual, fogDevices, cloudletList);
+				if (newIndividual.getFitness() > individual.getFitness()) {
+					for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+						individual.setGene(geneIndex, newIndividual.getGene(geneIndex));
+					calcFitness(individual, fogDevices, cloudletList);
+					individual.setTimeLive(timeLive);
+					continue;
+				}
+				individual.decTimeLive();
+			}
+
+		}
+		// Re-initailize lowest fitness bee
+		for (int populationIndex = (int) (0.85 * populationSize); populationIndex < population
+				.size(); populationIndex++) {
+			individual = population.getFittest(populationIndex);
+			
+			for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++)
+				individual.setGene(geneIndex, Service.rand(0, fogDevices.size() - 1));
+			individual.setTimeLive(999);
+		}
+		return population;
+	}
 	public Population mutatePopulation(Population population, List<FogDevice> fogDevices,
 			List<? extends Cloudlet> cloudletList) {
 
